@@ -1,5 +1,5 @@
 #!perl -w   -- -*- tab-width: 4; mode: perl -*-
-#$Id: which.pl,v 0.3.13.14 ( r167:3bdb4afb465b [mercurial] ) 2009/03/29 20:10:38 rivy $
+#$Id: which.pl,v 0.3.13.9977 ( r167:3bdb4afb465b [mercurial] ) 2009/03/29 20:10:38 rivy $
 
 ## TODO: aliases? bash which doesn't see aliases -- make a switch to search aliases as well?
 
@@ -11,7 +11,7 @@ which - Find and print the executable path
 
 =head1 VERSION
 
-This document describes C<which> ($Version: 0.3.13.14 $).
+This document describes C<which> ($Version: 0.3.13.9977 $).
 
 =head1 SYNOPSIS
 
@@ -67,10 +67,10 @@ B<which> will read each FILENAME, find, and then print the executable path for t
 =cut
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.3.13.14 $ SCS tag
+# generate VERSION from $Version: 0.3.13.9977 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-use version qw(); our $VERSION; { my $defaultVERSION = '0.1.0'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.3.13.14 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.1.0'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.3.13.9977 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat);

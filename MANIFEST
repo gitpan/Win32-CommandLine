@@ -147,9 +147,6 @@ t/99.strict.t-
 't/glob-file tests/TESTFILE {a,b}.txt'
 't/glob-file tests/TESTFILE {a}.txt'
 't/glob-file tests/TESTFILE {b}.txt'
-t/lib/Algorithm/Diff.pm
-t/lib/Text/Diff.pm
-t/lib/Text/Diff/Table.pm
 t/ltrim.t
 t/prelim/build-cs.bat
 t/prelim/echo-dosify.pl
