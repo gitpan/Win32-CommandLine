@@ -1,5 +1,5 @@
 @rem = '--*-Perl-*--
-@::# $Id: xx.bat,v 0.3.13.9977 ( r167:3bdb4afb465b [mercurial] ) 2009/03/29 20:10:38 rivy $
+@::# $Id: xx.bat,v 0.4.0.583 ( r180:e48577366492 [mercurial] ) 2009/04/01 22:18:29 rivy $
 :: rename? xx.bat
 @echo off
 :: eXpand and eXecute command line
@@ -97,7 +97,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> ($Version: 0.3.13.9977 $).
+This document describes C<xx> ($Version: 0.4.0.583 $).
 
 =head1 SYNOPSIS
 
@@ -118,11 +118,19 @@ Options:
 
 =item -s
 
-Expand the commandline and then source the resultant expanded command, causing possible modification of the current process environment. MUST be the first argument.
+Expand the command line (using Win32::CommandLine) and then B<source> the resulting expanded command. This is to allow B<modification of the current process environment> by the expanded command line. NOTE: MUST be the first argument.
 
 =item -so
 
-Expand the commandline and then source the resulting output of executing the expanded command, causing possible modification of the current process environment. MUST be the first argument.
+Expand the command line (using Win32::CommandLine) and then B<source> the OUTPUT of the execution of the expanded command. This is to allow B<modification of the current process environment> directed by the OUTPUT of the execution of the expanded command line. NOTE: MUST be the first argument.
+
+=item --echo, -e
+
+Print (but do not execute) the results of expanding the command line.
+
+=item --args, -a
+
+Print detailed information about the command line and it's expansion, including all resulting ARGS (B<without> executing the resultant expansion).
 
 =item --version
 
@@ -170,10 +178,10 @@ use strict;
 use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.3.13.9977 $ SCS tag
+# generate VERSION from $Version: 0.4.0.583 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-use version qw(); our $VERSION; { my $defaultVERSION = '0.3'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.3.13.9977 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.0.583 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 

@@ -1,6 +1,6 @@
 #-*- tab-width: 4; mode: perl -*-
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.3.13.9977 ( r175:f4734958429b [mercurial] ) 2009/03/29 23:01:08 rivy $
+#$Id: CommandLine.pm,v 0.4.0.583 ( r178:c297b38db706 [mercurial] ) 2009/04/01 22:08:46 rivy $
 
 # Module Summary
 
@@ -10,7 +10,7 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-This document describes C<Win32::CommandLine> ($Version: 0.3.13.9977 $).
+This document describes C<Win32::CommandLine> ($Version: 0.4.0.583 $).
 
 =cut
 
@@ -19,11 +19,7 @@ This document describes C<Win32::CommandLine> ($Version: 0.3.13.9977 $).
 ## ---- policies to REVISIT later
 ## no critic ( RequireArgUnpacking RequireDotMatchAnything RequireExtendedFormatting RequireLineBoundaryMatching )
 
-# TODO: check under MSVC, seems to compile and test fine but to.bat seems not to operate correctly
-
 # TODO: add taking nullglob from environment $ENV{nullglob}, use it if nullglob is not given as an option to the procedures (check this only in parse()?)
-
-# TODO: add tests (CMD and TCC) for x.bat => { x perl -e "$x = q{abc}; $x =~ s/a|b/X/; print qq{x = $x\n};" } => { x = Xbc }		## enclosed redirection
 
 # DONE[but DOCUMENT][TODO:] deal with possible reinterpretation of $() by x.bat ... ? $(<>) vs $"$(<>)" ... THINK ABOUT IT ==>> NO interpretation => leave it to the <COMMAND> if needed so that the commands get what they expect (use xx within the <COMMAND> if needed), and DOCUMENT THIS
 
@@ -33,11 +29,11 @@ use warnings;
 use 5.006;			# earliest tested perl version
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.3.13.9977 $ SCS tag
+# generate VERSION from $Version: 0.4.0.583 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) versions; see 'perldoc version']
-use version qw(); our $VERSION; { my $defaultVERSION = '0_3'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.3.13.9977 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.0.583 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 # Module base/ISA and Exports
 
@@ -1990,60 +1986,64 @@ return %home_paths;
 
 This module is used to reparse the Win32 command line, automating better quoting and globbing of the command line. Globbing is full bash POSIX compatible globbing, including subshell expansions. With the use of the companion script (xx.bat) and doskey for macro aliasing, you can add full-fledged bash compatible string quoting/expansion and file globbing to any Win32 command.
 
-This module is compatible with both cmd.exe and 4nt/tcc shells.
+This module is compatible with both cmd.exe and 4nt/tcc/tcmd shells, adding better parsing and bash glob expansion to B<any> external command, by using the included C<xx> batch script.
 
+=head2 C<CMD.EXE>
 
-	[cmd.exe]
 	doskey type=call xx type $*
 	type [a-c]*.pl
 	doskey perl=call xx perl $*
-	perl -e 'print "test"'		[o/w FAILS without commandline reinterpretation]
+	perl -e 'print "test"'	[o/w FAILS without commandline reinterpretation]
 
-	[TCC/TCMD/4NT]
+=head2 C<4NT/TCC/TCMD>
+
 	alias type=call xx type
 	type [a-c]*.pl
 	alias perl=call xx perl
-	perl -e 'print "test"'		[o/w FAILS without commandline reinterpretation]
+	perl -e 'print "test"'	[o/w FAILS without commandline reinterpretation]
 
-Note the bash compatible character expansion and globbing available, including meta-notations a{b,c}*.
+Note that bash compatible character expansion and globbing is available, including meta-notations such as C<a[bc]*> or C<foo.{bat,pl,exe,o}>.
 
-String/character expansion:
+=head2 Command line string/character expansion
 
 =over 2
 
-'...'		=> literal (no escapes and no globbing within quotes)
+'...'	=> literal (no escapes and no globbing within quotes)
 
-$'...'	=> ANSI	C string escapes (\a, \b, \e, \f, \n, \r, \t, \v, \\, \', \n{1,3}, \xh{1,2}, \cx; all other	\<x> =>\<x>), no globbing within quotes
+"..."	=> literal (no escapes and no globbing within quotes)
 
-"..."	  => literal (no escapes and no	globbing within	quotes)
+$'...'	=> string including all ANSI C string escapes (\a, \b, \e, \f, \n, \r, \t, \v, \\, \', \n{1,3}, \xh{1,2}, \cx; all other escaped characters: \<x> =>\<x>); no globbing within quotes
 
-$"..."  => same as "..."
+$"..."	=> literal (no escapes and no globbing within quotes) [same as "..."]
 
-$( ... ) => subshell expansion
+$( ... )	=> subshell expansion [subshell commandline is _not_ expanded]
 
-$("...") => subshell expansion
+$("...")	=> subshell expansion (quotes removed) [subshell commandline is _not_ expanded]
 
 =back
 
-Globbing:
+=head2 Command line globbing
 
 =over 2
 
-\       Quote the next metacharacter
+\	Quote the next metacharacter
 
-[]      Character class
+[]	Character class
 
-{}      Multiple pattern
+{}	Multiple pattern
 
-*       Match any string of characters
+*	Match any string of characters
 
-?       Match any single character
+?	Match any single character
 
-~       Expand to current user home directory
+~	Expand to current user home directory
 
-~<name> Expands to user <name> home directory for any defined user [ ONLY if {Win32, Win32::Security::SID, Win32::TieRegistry} are installed; o/w no expansion => pull off any leading non-quoted ~[name] (~ followed by word characters) => replace with home dir of [name] if exists, otherwise replace the characters)
+~<name>	Expands to user <name> home directory for any defined user [ ONLY if {Win32, Win32::Security::SID, Win32::TieRegistry} are installed; o/w no expansion => pull off any leading non-quoted ~[name] (~ followed by word characters) => replace with home dir of [name] if exists, otherwise replace the characters)
 
-~<text> Expands to value of environment variable "~<text>" (if defined) [OVERRIDES ~<name> expansion] #?? verify and document which has priority
+~<text>	Expands to value of environment variable "~<text>" (if defined) [OVERRIDES ~<name> expansion]
+
+=for further_documentation
+	 verify and document ~<text> overrides ~<name> ## verify and document which has priority
 
 =back
 
@@ -2110,15 +2110,19 @@ C<argv()> returns the reparsed command line as an array.
 
 =head2 parse( $ )
 
-C<parse()> returns the parsed argument string as an array.
+C<parse( $ )> takes a string argument and returns the parsed argument string as an array.
 
 =for readme continue
 
 =head1 RATIONALE
 
-Attempts were made using Win32::API and Inline::C.
+This began as a simple need to work-around the less-than-stellar C<COMMAND.COM>/C<CMD.EXE> command line parser, just to accomplish more `correct` quotation interpretation.
+It then grew into a small odyssey: learning XS and how to create a perl module, learning the perl build process and creating a customized build script/environment,
+researching tools and developing methods for revision control and versioning, learning and creating perl testing processes, and finally learning about PAUSE
+and perl publishing practices. And, somewhere in the middle, adding some of the C<bash> shell magic to the CMD shell (and, additionally, making it
+compatible with the excellent [and free] TCC-LE shell from JPSoft [find it at L<http://jpsoft.com/>]).
 
-Win32::API attempt (causes GPFs):
+Some initial attempts were made using C<Win32::API> and C<Inline::C>. For example (C<Win32::API> attempt [caused GPFs]):
 
     @rem = '--*-Perl-*--
     @echo off
@@ -2134,31 +2138,31 @@ Win32::API attempt (causes GPFs):
     @rem ';
     #!/usr/bin/perl -w
     #line 15
-
+    #
     use Win32::API;
-
+    #
     Win32::API->Import("kernel32", "LPTSTR GetCommandLine()");
-
     my $string = pack("Z*", GetCommandLine());
-
+    #
     print "string[".length($string)."] = '$string'\n";
-
     # ------ padding --------------------------------------------------------------------------------------
-
     __END__
     :endofperl
 
-Unfortunately, Win32::API causes a GPF and Inline::C is very brittle on Win32 systems (not compensating for paths with embedded strings).
+Unfortunately, C<Win32::API> and C<Inline::C> were shown to be too fragile at the time (in 2007).
+C<Win32::API> caused occasional (but reproducible) GPFs, and C<Inline::C> is very brittle on Win32 systems (not compensating for paths with embedded strings).
+[ See L<http://www.perlmonks.org/?node_id=625182> for a more full explanation of the problem and initial attempts at a solution. ]
 
-See URLref: http://www.perlmonks.org/?node_id=625182 for a more full explanation of the problem and initial attempts at a solution.
+So, an initial XS solution was implemented. And from that point, the lure of C<bash>-like command line parsing led inexorably to the full implementation. The parsing logic is unfortunately still complex, but seems to be holding up under testing.
 
 =for readme stop
 
 =head1 IMPLEMENTATION and INTERNALS
 
-#=h#ead2 wrap_GetCommandLine()
-#
-#[XS] Use C and Win32 API to get the command line.
+wrap_GetCommandLine() :: [XS] Use C and Win32 API to get the command line.
+
+=for further_expansion
+	other internal function notes
 
 =head1 DIAGNOSTICS
 
@@ -2167,6 +2171,10 @@ See URLref: http://www.perlmonks.org/?node_id=625182 for a more full explanation
 	generate (even the ones that will ''never happen''), with a full
 	explanation of each problem, one or more likely causes, and any
 	suggested remedies.
+
+Pending documentation...
+
+=begin FUTURE-DOCUMENATION
 
 =over
 
@@ -2182,6 +2190,8 @@ See URLref: http://www.perlmonks.org/?node_id=625182 for a more full explanation
 
 =back
 
+=end FUTURE-DOCUMENATION
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
 =for author_to_fill_in
@@ -2191,16 +2201,17 @@ See URLref: http://www.perlmonks.org/?node_id=625182 for a more full explanation
 	that can be set. These descriptions must also include details of any
 	configuration language used.
 
-Win32::CommandLine requires no configuration files or environment variables.
+C<Win32::CommandLine> requires no configuration files or environment variables.
 
 =over
 
 =item Optional Environment Variables
 
-[???] $ENV{NULLGLOB} = 0/1 => override default 'nullglob' setting
+$ENV{NULLGLOB} = 0/1 => overrides default 'nullglob' setting
 
-[???] $ENV{WIN32_COMMANDLINE_RULE} = "sh" | "bash" (case doesn't matter) => argv will parse in "sh/bash" manner if set to "default"|"undef"
-- will warn (not carp) if value unrecognized
+=for the_possible_future
+	$ENV{WIN32_COMMANDLINE_RULE} = "sh" | "bash" (case doesn't matter) => argv will parse in "sh/bash" manner if set to "default"|"undef"
+	- will warn (not carp) if value unrecognized
 
 =back
 
@@ -2214,7 +2225,9 @@ Win32::CommandLine requires no configuration files or environment variables.
 	the module is part of the standard Perl distribution, part of the
 	module's distribution, or must be installed separately. ]
 
-None.
+C<Win32::CommandLine> requires C<Carp::Assert> for internal error checking and warnings.
+
+The optional modules C<Win32>, C<Win32::API>, C<Win32::Security::SID>, and C<Win32::TieRegistry> are recommended for installation to allow full glob tilde expansions for user home directories (eg, C<~administrator> expands to C<C:\Users\Administrator>). The basic expansion of ~ for the current user has a backup implementation based on %ENV vars, and therefore will still work even without the optional modules.
 
 =for readme stop
 
@@ -2229,9 +2242,6 @@ None.
 
 None reported.
 
-% issues => x %%%% => %
-
-
 =head1 BUGS AND LIMITATIONS
 
 =for author_to_fill_in
@@ -2243,26 +2253,33 @@ None reported.
 	limitations on the size of data sets, special cases that are not
 	(yet) handled, etc.
 
-Please report any bugs or feature requests to bug-test-command at rt.cpan.org, or through the web interface at http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Win32-CommandLine. I will be notified, and then you'll automatically be notified of progress on your bug as I make changes.
+Please report any bugs or feature requests to C<bug-Win32-CommandLine@rt.cpan.org>, or through the web interface at http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Win32-CommandLine. The developers will be notified, and you'll automatically be notified of progress on your bug as any changes are made.
+
+=head2 Operational Notes
+
+IMPORTANT NOTE: Special shell characters (shell redirection [ '<', '>' ] and continuation '&') must be B<**DOUBLE-quoted**> to escape shell interpretation (eg, C<"...>...">). The CMD shell does initial parsing and redirection/continuation (stripping away everything after I/O redirection and continuation characters) before B<any> process can get a look at the command line. So, the special shell characters can only be hidden from shell interpretation by DOUBLE-quoting them.
+
+C<%<x>> is also replaced by the corresponding %ENV variable by the CMD shell before handing the command line off to the OS. So, C<%%> must be used to place single %'s in the command line, eg: C<perl -e "use Win32::CommandLine; %%x = Win32::CommandLine::_home_paths(); for (sort keys %%x) { print qq{$_ => $x{$_}\n}; }">.
 
 Brackets ('{' and '}') and braces ('[' and ']') must be quoted to be matched literally. This may be a gotcha for some users, although if the filename has internal spaces, the standard Win32 shell (cmd.exe) will automatically surround the entire path with spaces (which corrects the issue).
 
-GOTCHA: ** Special shell characters (shell redirection [ '<', '>' ] and continuation '&') characters must still be **double-quoted**. The CMD shell does initial parsing and redirection/continuation (stripping away everything after I/O redirection and continuation characters) before any process can get a look at the command line.
+Some programs may expect their arguments to maintain their surrounding quotes, but argv() parsing only quotes arguments which require it for shell parsing (i.e., those containing spaces, special characters, etc).
 
-GOTCHA: %<x> is still replaced by ENV vars and %% must be used to place single %'s in the command line, eg: >perl -e "use Win32::CommandLine; %%x = Win32::CommandLine::_home_paths(); for (sort keys %%x) { print qq{$_ => $x{$_}\n}; }"
+Be careful with backslashed quotes within quoted strings. Note that "...\" is an B<unbalanced> string containing a double quote. Place the backslash outside of the quotation ("...\"") or use a double backslash (C<"...\\">) to include it in the parsed token. However, backslashes ONLY need to be doubled when placed prior to a quotation mark (C<"...\..."> works as expected).
 
-GOTCHA: Some programs expect their arguments to maintain their surrounding quotes (eg, C<<perl -e 'print "x";'>> doesn't work as expected).
-
-GOTCHA: {4NT/TCC/TCMD} The shell interprets and _removes_ backquote characters before executing the command. You must quote backquote characters with _double-quotes_ to pass them into the command line (eg, {perl -e "print `dir`"} NOT {perl -e 'print `dir`'} ... the single quotes do not protect the backquotes which are removed leaving just {dir}).
-		??? fix this by using $ENV{CMDLINE} which is set by TCC? => attempts to workaround this using $ENV{CMDLINE} fail because TCC doesn't have control between processes and can't set the new CMDLINE value if one process directly creates another (and I'm not sure how to detect that TCC started the process)
-		-- can try PPIDs if Win32::API is present... => DONE [2009-02-18] [seems to be working now... if Win32::API is available, parentEXE is checked and $ENV{CMDLINE} is used if the parent process matches 4nt/tcc/tcmd]
-
-GOTCHA: Note this behavior (ending \" => ", which is probably not what is desired or expected in this case (? what about other cases, should this be "fixed" or would it break something else?)
+=for further_expansion
+	GOTCHA: Note this behavior (ending \" => ", which is probably not what is desired or expected in this case (? what about other cases, should this be "fixed" or would it break something else?)
 	C:\...\perl\Win32-CommandLine
 	>t\prelim\echo.exe "\\sethra\C$\"win*
 	[0]\\sethra\C$"win*
 
-Please report any bugs or feature requests to C<bug-Win32-CommandLine@rt.cpan.org>, or through the web interface at L<http://rt.cpan.org>.
+4NT/TCC/TCMD NOTE: The shell interprets and B<removes> backquote characters before executing the command. You must quote backquote characters with B<**double-quotes**> to pass them into the command line (eg, {perl -e "print `dir`"} NOT {perl -e 'print `dir`'} ... the single quotes do not protect the backquotes which are removed leaving just {dir}).
+
+=for possible_future_codefix
+		??? fix this by using $ENV{CMDLINE} which is set by TCC? => attempts to workaround this using $ENV{CMDLINE} fail because TCC doesn't have control between processes and can't set the new CMDLINE value if one process directly creates another (and I'm not sure how to detect that TCC started the process)
+		-- can try PPIDs if Win32::API is present... => DONE [2009-02-18] [seems to be working now... if Win32::API is available, parentEXE is checked and $ENV{CMDLINE} is used if the parent process matches 4nt/tcc/tcmd]
+
+=head2 Bugs
 
 No bugs have been reported.
 
@@ -2283,41 +2300,35 @@ You can also look for information at:
 
     * CPAN Ratings
 
-      http://cpanratings.perl.org/d/Test-Command
+      http://cpanratings.perl.org/dist/Win32-CommandLine
 
-    * RT: CPAN's request tracker
+    * RT: CPAN's request tracker (aka buglist)
 
-      http://rt.cpan.org/NoAuth/Bugs.html?Dist=Test-Command
+      http://rt.cpan.org/Public/Dist/Display.html?Name=Win32-CommandLine
 
     * Search CPAN
 
-      http://search.cpan.org/dist/Test-Command
+      http://kobesearch.cpan.org/dist/Win32-CommandLine
+      _or_
+      http://search.cpan.org/dist/Win32-CommandLine
 
-#EX from 'Touch'
-#You can find documentation for this module with the perldoc command.
-#
-#    perldoc Touch
-#
-#
-#You can also look for information at:
-#
-#* AnnoCPAN: Annotated CPAN documentation
-#
-#    http://annocpan.org/dist/Touch
-#* CPAN Ratings
-#
-#    http://cpanratings.perl.org/d/Touch
-#* RT: CPAN's request tracker
-#
-#    http://rt.cpan.org/NoAuth/Bugs.html?Dist=Touch
-#* Search CPAN
-#
-#    http://search.cpan.org/dist/Touch
+    * CPANTS: CPAN Testing Service
+
+      [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
+      [used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
+
+    * CPANTESTERS: Test results
+
+      http://www.cpantesters.org/show/Win32-CommandLine.html
+
+=for possible_future
+	* CPANFORUM: Forum discussing Win32::CommandLine
+	  http://www.cpanforum.com/dist/Win32-CommandLine
 
 =head1 ACKNOWLEDGEMENTS
 
-#EX
-#Test::Builder by Michael Schwern allowed me to focus on the specifics related to testing system commands by making it easy to produce proper test output.
+=for example
+	#Test::Builder by Michael Schwern allowed me to focus on the specifics related to testing system commands by making it easy to produce proper test output.
 
 =for readme continue
 
@@ -2477,7 +2488,7 @@ TODO: UPDATE THIS $"..." and "..." not exactly accurate now [2009-02-23]
 
 =end IMPLEMENTATION-NOTES
 
-This began as a simple need to reparse the commandline and grew into an odyssey to lend some bash shell magic to the CMD shell (and, additionally, then make it compatible with the excellent (and free) TCC-LE shell from JPSoft).
+=begin FUTURE-DOCUMENTATION
 
 TODO
 
@@ -2527,6 +2538,7 @@ SOLUTION (why needed? and is it fixed with later v of ActivePerl?)
   </dependency>
 </assembly>
 
+=end FUTURE-DOCUMENTATION
 
 =cut
 

@@ -2,7 +2,7 @@ NAME
     Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 VERSION
-    This document describes `Win32::CommandLine' ($Version: 0.3.13.9977 $).
+    This document describes `Win32::CommandLine' ($Version: 0.4.0.583 $).
 
 SYNOPSIS
             @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
@@ -21,40 +21,47 @@ DESCRIPTION
     full-fledged bash compatible string quoting/expansion and file globbing
     to any Win32 command.
 
-    This module is compatible with both cmd.exe and 4nt/tcc shells.
+    This module is compatible with both cmd.exe and 4nt/tcc/tcmd shells,
+    adding better parsing and bash glob expansion to any external command,
+    by using the included `xx' batch script.
 
-            [cmd.exe]
+  `CMD.EXE'
+
             doskey type=call xx type $*
             type [a-c]*.pl
             doskey perl=call xx perl $*
-            perl -e 'print "test"'          [o/w FAILS without commandline reinterpretation]
+            perl -e 'print "test"'  [o/w FAILS without commandline reinterpretation]
 
-            [TCC/TCMD/4NT]
+  `4NT/TCC/TCMD'
+
             alias type=call xx type
             type [a-c]*.pl
             alias perl=call xx perl
-            perl -e 'print "test"'          [o/w FAILS without commandline reinterpretation]
+            perl -e 'print "test"'  [o/w FAILS without commandline reinterpretation]
 
-    Note the bash compatible character expansion and globbing available,
-    including meta-notations a{b,c}*.
+    Note that bash compatible character expansion and globbing is available,
+    including meta-notations such as `a[bc]*' or `foo.{bat,pl,exe,o}'.
 
-    String/character expansion:
+  Command line string/character expansion
 
       '...' => literal (no escapes and no globbing within quotes)
 
-      $'...' => ANSI C string escapes (\a, \b, \e, \f, \n, \r, \t, \v, \\,
-      \', \n{1,3}, \xh{1,2}, \cx; all other \<x> =>\<x>), no globbing within
-      quotes
-
       "..." => literal (no escapes and no globbing within quotes)
 
-      $"..." => same as "..."
+      $'...' => string including all ANSI C string escapes (\a, \b, \e, \f,
+      \n, \r, \t, \v, \\, \', \n{1,3}, \xh{1,2}, \cx; all other escaped
+      characters: \<x> =>\<x>); no globbing within quotes
 
-      $( ... ) => subshell expansion
+      $"..." => literal (no escapes and no globbing within quotes) [same as
+      "..."]
 
-      $("...") => subshell expansion
+      $( ... ) => subshell expansion [subshell commandline is _not_
+      expanded]
 
-    Globbing:
+      $("...") => subshell expansion (quotes removed) [subshell commandline
+      is _not_ expanded]
+
+  Command line globbing
 
       \ Quote the next metacharacter
 
@@ -75,8 +82,7 @@ DESCRIPTION
       exists, otherwise replace the characters)
 
       ~<text> Expands to value of environment variable "~<text>" (if
-      defined) [OVERRIDES ~<name> expansion] #?? verify and document which
-      has priority
+      defined) [OVERRIDES ~<name> expansion]
 
 INSTALLATION
     To install this module, run the following commands:
@@ -108,9 +114,20 @@ INSTALLATION
     installation using `ppm' (see ppm).
 
 RATIONALE
-    Attempts were made using Win32::API and Inline::C.
+    This began as a simple need to work-around the less-than-stellar
+    `COMMAND.COM'/`CMD.EXE' command line parser, just to accomplish more
+    `correct` quotation interpretation. It then grew into a small odyssey:
+    learning XS and how to create a perl module, learning the perl build
+    process and creating a customized build script/environment, researching
+    tools and developing methods for revision control and versioning,
+    learning and creating perl testing processes, and finally learning about
+    PAUSE and perl publishing practices. And, somewhere in the middle,
+    adding some of the `bash' shell magic to the CMD shell (and,
+    additionally, making it compatible with the excellent [and free] TCC-LE
+    shell from JPSoft [find it at http://jpsoft.com/]).
 
-    Win32::API attempt (causes GPFs):
+    Some initial attempts were made using `Win32::API' and `Inline::C'. For
+    example (`Win32::API' attempt [caused GPFs]):
 
         @rem = '--*-Perl-*--
         @echo off
@@ -126,28 +143,39 @@ RATIONALE
         @rem ';
         #!/usr/bin/perl -w
         #line 15
-
+        #
         use Win32::API;
-
+        #
         Win32::API->Import("kernel32", "LPTSTR GetCommandLine()");
-
         my $string = pack("Z*", GetCommandLine());
-
+        #
         print "string[".length($string)."] = '$string'\n";
-
         # ------ padding --------------------------------------------------------------------------------------
-
         __END__
         :endofperl
 
-    Unfortunately, Win32::API causes a GPF and Inline::C is very brittle on
-    Win32 systems (not compensating for paths with embedded strings).
+    Unfortunately, `Win32::API' and `Inline::C' were shown to be too fragile
+    at the time (in 2007). `Win32::API' caused occasional (but reproducible)
+    GPFs, and `Inline::C' is very brittle on Win32 systems (not compensating
+    for paths with embedded strings). [ See
+    http://www.perlmonks.org/?node_id=625182 for a more full explanation of
+    the problem and initial attempts at a solution. ]
 
-    See URLref: http://www.perlmonks.org/?node_id=625182 for a more full
-    explanation of the problem and initial attempts at a solution.
+    So, an initial XS solution was implemented. And from that point, the
+    lure of `bash'-like command line parsing led inexorably to the full
+    implementation. The parsing logic is unfortunately still complex, but
+    seems to be holding up under testing.
 
 DEPENDENCIES
-    None.
+    `Win32::CommandLine' requires `Carp::Assert' for internal error checking
+    and warnings.
+
+    The optional modules `Win32', `Win32::API', `Win32::Security::SID', and
+    `Win32::TieRegistry' are recommended for installation to allow full glob
+    tilde expansions for user home directories (eg, `~administrator' expands
+    to `C:\Users\Administrator'). The basic expansion of ~ for the current
+    user has a backup implementation based on %ENV vars, and therefore will
+    still work even without the optional modules.
 
 AUTHOR
     Roy Ivy III <rivy[at]cpan[dot]org>

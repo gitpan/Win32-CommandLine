@@ -1,8 +1,10 @@
-::# $Id: to.bat,v 0.3.13.9977 ( r132:f71cf1981c65 [mercurial] ) 2009/02/27 23:02:51 rivy $
+::# $Id: to.bat,v 0.4.0.583 ( r177:b5c53dc39421 [mercurial] ) 2009/04/01 19:48:12 rivy $
 :: to.bat
 :: cd with command line expansion
 :: note: removes any initial '~' for convenience
 ::  * if removal of the initial '~' isn't required, the entire batch file can be compressed to a single alias (cmd.exe: 'doskey to=x -S cd ~$*'; 4nt/tcc/tcmd: 'alias to=x -S cd ~%%$')
+:: compatible with CMD, 4NT/TCC/TCMD
+:: NOT compatible with COMMAND
 @echo off
 setlocal
 

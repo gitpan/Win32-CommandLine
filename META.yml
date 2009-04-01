@@ -1,6 +1,6 @@
 ---
 name: Win32-CommandLine
-version: 0.3.13_9977
+version: 0.4.0.583
 author:
   - 'Roy Ivy III <rivy[at]cpan[dot]org>'
 abstract: Retrieve and reparse the Win32 command line
@@ -9,6 +9,7 @@ resources:
   license: http://dev.perl.org/licenses/
 requires:
   Carp::Assert: 0
+  File::Which: 0
   perl: 5.6.0
 build_requires:
   ExtUtils::Manifest: 1.54
@@ -27,7 +28,7 @@ recommends:
 provides:
   Win32::CommandLine:
     file: lib/Win32/CommandLine.pm
-    version: 0.3.13_9977
+    version: 0.4.0.583
 generated_by: Module::Build version 0.31012
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

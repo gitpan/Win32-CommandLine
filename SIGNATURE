@@ -14,117 +14,23 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 993efc75d6b08cdb02d6aa363462ecc88a964b92 Build.PL
-SHA1 0dc6572c6d1003469e3e75b83335cfb6e23b08fb Build.PL.config
+SHA1 7f6187e6823c519fe48871581e28118b74273b50 Build.PL
+SHA1 b3507a98ea24132b8f575f6bdd87017f61f10772 Build.PL.config
 SHA1 fda05eb3bd5b73b635f04c90c5a197177c36333f Changes
 SHA1 f235ba4160673bcb7c9d58c2f09dbc7fc0efadea LICENSE
-SHA1 529ffdc9e278b6a1ff33e65b45ab06a1e69107c3 MANIFEST
+SHA1 f4c75bd77a79c7a066bb61f6a7556cb78247df2a MANIFEST
 SHA1 db1fa394a7f0841e4a9a9a4e902e33c633ff1295 MANIFEST.SKIP
-SHA1 6fefcd443ffa87e36e57762064e1c59d5b2afc95 META.yml
+SHA1 c7528d038482ba6ee5e79faec79a905ba2e8db62 META.yml
 SHA1 28fa97a8c326a672e226e68b7a0afc66a8884e87 Makefile.PL
-SHA1 af0cee36a23e6667334fb3cd06f8eca1785d71d3 README
-SHA1 bef3d4a9be27116a5ac20150ec65f55fa5eacd9d bin/xx.bat
-SHA1 5d5531e6183028eb3aa16e26d60bb731c7de8c23 eg/to.bat
+SHA1 fa924dfc3170b5cca2e50fb628bc9730d3e65a70 README
+SHA1 bea29886d1d1e1f8f6792288b5f3a5a2a718be31 bin/xx.bat
+SHA1 522b5e278841cfbfbe40cce81df0fe52489041b7 eg/to.bat
 SHA1 aacaca5c864ef8838582016c0faa91bc89344bb4 extras/dosify.bat
 SHA1 56aaf3c3194f632624c62452ee436d9af82c02ac extras/new-guid.zip
-SHA1 d5e043ee36705c01c013f175e447acd075cbb495 extras/quote.bat
+SHA1 e47e13dcedafdfacd01769f6acbcf4acf2e12db3 extras/quote.bat
 SHA1 d0ab2bc38eacb89864baa8b5318c05f0b7189cd0 extras/so.bat
-SHA1 e601cb8d07ca1b5f650ad365bc70982d55bb0d7b extras/which.pl
-SHA1 21ceffba3dcf3c1142fdc6c11252a87e4d05a967 inc/Devel/AssertOS.pm
-SHA1 5c6d8bf6add524425331bdc1bce7555cf34fdc5b inc/Devel/AssertOS/AIX.pm
-SHA1 82753159f6c4a18e05e52115537c01e1e8801203 inc/Devel/AssertOS/Amiga.pm
-SHA1 1182a29da90ceedaf05b93bc02c4a3e8e52583af inc/Devel/AssertOS/Apple.pm
-SHA1 ea8457bd377ba8b4184799c3c7bd8bf6aea1e2ee inc/Devel/AssertOS/BSDOS.pm
-SHA1 82a5fa630f6ddde069a516ef4dabc59024fc6849 inc/Devel/AssertOS/BeOS.pm
-SHA1 51f29c65659d0ab3c31e731290c5f93be2ba2659 inc/Devel/AssertOS/Cygwin.pm
-SHA1 574cf29a6a5898fc426cdb347fdf02193ca8f1f7 inc/Devel/AssertOS/DEC.pm
-SHA1 24b735a2e8c5233d45f4f0e3f4093ae4c1b99e26 inc/Devel/AssertOS/DGUX.pm
-SHA1 f37b7d61a7bc86d9f8137b4c74a87458753d6c5c inc/Devel/AssertOS/DragonflyBSD.pm
-SHA1 70ae21d809bedb66a5e69394805c969bda53fa04 inc/Devel/AssertOS/Dynix.pm
-SHA1 ffcf69810784ffa5d9dcb06e484ec8a94b9ccc5c inc/Devel/AssertOS/Extending.pod
-SHA1 5d1da91ca769a047eaf320e291ce5976a73fbbd9 inc/Devel/AssertOS/FreeBSD.pm
-SHA1 b8adb059a9d27d9eaf8288731ab08225a918750e inc/Devel/AssertOS/HPUX.pm
-SHA1 0df93329656b803a74985e27bbed6b7e7cb1a142 inc/Devel/AssertOS/Haiku.pm
-SHA1 4ebec1faa27699ac4ea2164e6422ccd8e065f733 inc/Devel/AssertOS/Interix.pm
-SHA1 203af68fb0b6c6d18e12e99d5a9a36b5779f05a5 inc/Devel/AssertOS/Irix.pm
-SHA1 20513e158c0ee14a4c4aa1f17bf121e4e189a2c7 inc/Devel/AssertOS/Linux.pm
-SHA1 c8ef361ee7a0b0deb61c840a51f70f46e7da189b inc/Devel/AssertOS/Linux/v2_6.pm
-SHA1 5de5c2d7ce86b1593bd01449ee599fa3751c23b8 inc/Devel/AssertOS/MPEiX.pm
-SHA1 c546b6a388d44611deb57fc5b6e06b0b64f6a6ca inc/Devel/AssertOS/MSDOS.pm
-SHA1 9b4e1aed8cb815d8161dc26ffce57359c4eddf90 inc/Devel/AssertOS/MSWin32.pm
-SHA1 14458cfc150a67e8d1e6864657406a7bf3dbfc3d inc/Devel/AssertOS/MacOSX.pm
-SHA1 c931e0c0a07c4d52ef57df12dd294422918c7e28 inc/Devel/AssertOS/MacOSX/v10_4.pm
-SHA1 280ec29ea5d14d53f88c408935fb86b2aad666ca inc/Devel/AssertOS/MacOSclassic.pm
-SHA1 9529734f545c80d52a90629411dca0bd1eb35f2b inc/Devel/AssertOS/MachTen.pm
-SHA1 8f1616d55b8c61823393307c5d21a5fbf35fa852 inc/Devel/AssertOS/MicrosoftWindows.pm
-SHA1 246643ab7fbdf9c0fd8644f3ace1022965bf9c25 inc/Devel/AssertOS/MirOSBSD.pm
-SHA1 d653b49e055ca45e8bcdf34112b70baca9abe198 inc/Devel/AssertOS/NeXT.pm
-SHA1 618991b2608e090fe3ce1c48898840bfa3c59f9b inc/Devel/AssertOS/NetBSD.pm
-SHA1 f539d1d1aabb37cc2685d5206524f3b329469813 inc/Devel/AssertOS/Netware.pm
-SHA1 82c1d0392eb131aaa0959f5ce7940cd0f4b723c0 inc/Devel/AssertOS/OS2.pm
-SHA1 cafdbd13a5d57d8037465d7f98c4e86dddf9b9ae inc/Devel/AssertOS/OS390.pm
-SHA1 53afb7e0952f87a925694fe9b59c74bd97192aa7 inc/Devel/AssertOS/OS400.pm
-SHA1 c92fb94666e2765e05aefcf44b7d352622954303 inc/Devel/AssertOS/OSF.pm
-SHA1 0cb8db29e061402d2e7533cb387db1cda0699043 inc/Devel/AssertOS/OSFeatures/POSIXShellRedirection.pm
-SHA1 f1e8198810def6fa59e380058e65b114c0c3b8f9 inc/Devel/AssertOS/OpenBSD.pm
-SHA1 f2a7c23552917dbcc5bdef9e3cf8b99429a4d437 inc/Devel/AssertOS/POSIXBC.pm
-SHA1 b8a4dac5f91505533aece7bd01209cb98da8a929 inc/Devel/AssertOS/QNX.pm
-SHA1 15e64feabcec13031dc00c93d617abd31f2e5461 inc/Devel/AssertOS/QNX/Neutrino.pm
-SHA1 af85b3dd60f1d2393ae628af4958c6c0181f71e0 inc/Devel/AssertOS/QNX/v4.pm
-SHA1 721bc849cb1cc84909aca5dad171ebcf62556a97 inc/Devel/AssertOS/RISCOS.pm
-SHA1 ca60deaed44e1d15168ea117f97d95b1b1a93796 inc/Devel/AssertOS/Realtime.pm
-SHA1 cf629ddca995e04c65548e8d0f655f6828a87589 inc/Devel/AssertOS/SCO.pm
-SHA1 91b685c1633cf11887b174a7606a74e30a6aedb8 inc/Devel/AssertOS/Solaris.pm
-SHA1 5ca57706313ebb0598cdd6d920898e615f37cf1d inc/Devel/AssertOS/Sun.pm
-SHA1 600869feb0bae3bb6ddf92f0cac98d4618918d86 inc/Devel/AssertOS/SunOS.pm
-SHA1 8068970ddba2a8834513b6f0c4cafd7e656ec8df inc/Devel/AssertOS/SysVr4.pm
-SHA1 182b0d8cc4568d8ab14210605902c5b91e37a9c0 inc/Devel/AssertOS/SysVr5.pm
-SHA1 4b2de16618edc026c93fdf1bcf2da8f51508afcf inc/Devel/AssertOS/Unicos.pm
-SHA1 8a136ad8658639457ee550fff622d1b7090112bf inc/Devel/AssertOS/Unix.pm
-SHA1 6569acc04611bc2c043619bead0460b9d4ab17df inc/Devel/AssertOS/VMESA.pm
-SHA1 2d7d30aa21257776fdc906ceaef8a2f0da1efd23 inc/Devel/AssertOS/VMS.pm
-SHA1 8751b890fd201f4231d90bbcd6b0dea43d3c1158 inc/Devel/AssertOS/VOS.pm
-SHA1 2e59d3abd66fdd408909de9c840568b2af5a0a36 inc/Devel/Autoflush.pm
-SHA1 753dfb8fadfcbb125cbb57ed8f4c809657cd22f6 inc/Devel/Autoflush.pod
-SHA1 3166058db093402f7c85cf50c88c46307559710d inc/Devel/CheckOS.pm
-SHA1 f5385fabd7aef6ecef79587c38469b7e1bf1ddde inc/Devel/CheckOS/Families.pod
-SHA1 04005e75fc4278c1ac01c93fd99ee8a684f9c3f5 inc/Devel/Cover.pm
-SHA1 77fed0d8214b30028ff1480e7365a4f126473e0e inc/Devel/Cover/Annotation/Random.pm
-SHA1 40f927a4995bd76b11e6f0fd32b28b75d0e3220e inc/Devel/Cover/Annotation/Svk.pm
-SHA1 d879289f3f17697314a5b2aef41a2e89d75df878 inc/Devel/Cover/Branch.pm
-SHA1 087b439367ff1ea0b4919d0d13aa699b06cd4b1c inc/Devel/Cover/Condition.pm
-SHA1 38e465a9858faea6d1465b95229345e6dbbd9759 inc/Devel/Cover/Condition_and_2.pm
-SHA1 f5ada1a704b33159e6348651e8df053a6dbe8475 inc/Devel/Cover/Condition_and_3.pm
-SHA1 6da2f2d238652cde8c6e18dbd8aec941e89af952 inc/Devel/Cover/Condition_or_2.pm
-SHA1 362283bd862588f801146e98308797572aaf37cc inc/Devel/Cover/Condition_or_3.pm
-SHA1 f01645320be67a15743daf09aa49e427c070550a inc/Devel/Cover/Condition_xor_4.pm
-SHA1 140edca0e266f28031467e449b87ccfabc8d8c18 inc/Devel/Cover/Criterion.pm
-SHA1 a37991c7f9d145b366f9c6a0bb28ed6cfb576711 inc/Devel/Cover/DB.pm
-SHA1 96a80af895b1097c25bcbb517e546e09cb377b8a inc/Devel/Cover/DB/File.pm
-SHA1 3f022228e76ff99677caf0f89d23918613e6ace8 inc/Devel/Cover/DB/Structure.pm
-SHA1 c37e6bfb3cfbd8e3b1b8a083bbdcb9973edf7a5f inc/Devel/Cover/Inc.pm
-SHA1 7fe688c2eb3145ac1277b30edc7d548e3fe1587d inc/Devel/Cover/Op.pm
-SHA1 5e66e6d7eb8a2a6d82543640e364ae2ef364c4fc inc/Devel/Cover/Pod.pm
-SHA1 63407077e9bcd4a6516139006445fe40465915c6 inc/Devel/Cover/Report/Compilation.pm
-SHA1 a2b86440057c9b49fd81a37cb5822a344b286359 inc/Devel/Cover/Report/Html.pm
-SHA1 f316950255388e72eb3ab9283a0472833be88b1b inc/Devel/Cover/Report/Html_basic.pm
-SHA1 d580d69e94dc3d3c5cd6147098513ff397873f63 inc/Devel/Cover/Report/Html_minimal.pm
-SHA1 96bf0b37120c7bed16201761feb69fc5ad9c365d inc/Devel/Cover/Report/Html_subtle.pm
-SHA1 09b88278cce7120f59c14ca159fe7fb60ad6c87d inc/Devel/Cover/Report/Sort.pm
-SHA1 ec8f3d8cd5aee6ea046a11a2ce54b31f07129e63 inc/Devel/Cover/Report/Text.pm
-SHA1 19804d7c3b7198e26cb76b84acd311530f977ce1 inc/Devel/Cover/Report/Text2.pm
-SHA1 2d31b96ff5c1284fd95cdfb83263a7b54ccdbb07 inc/Devel/Cover/Statement.pm
-SHA1 812f7d4e7f3880d744534bd45d1b1fd4f0f92834 inc/Devel/Cover/Subroutine.pm
-SHA1 d66f708081a75c8627240d97c167c4b1aeb0e618 inc/Devel/Cover/Test.pm
-SHA1 e1d156de64f2c9d9aac52ee29c10fa7601391672 inc/Devel/Cover/Time.pm
-SHA1 906fdda1134aef6c77a987e36088f4c4e53a5ce8 inc/Devel/Cover/Truth_Table.pm
-SHA1 8897625e3ba2b9d112ddb967ed160880dd2a3482 inc/Devel/Cover/Tutorial.pod
-SHA1 385e0db641924d278648025173932555e1ed7b33 inc/Devel/InnerPackage.pm
-SHA1 f3c3bfc23fa0875004dab42d7ea98729fce8f1fa inc/Devel/PPPort.pm
-SHA1 c71c041da6c6c63e821eed2399c1e0b64284c784 inc/Devel/StackTrace.pm
-SHA1 3fcf4379b16168928cd98ecaad17bbbbc89eb177 inc/Devel/Symdump.pm
-SHA1 fef2e4c5ea88bd09f2af618e32a58ee87be965a4 inc/Devel/Symdump/Export.pm
-SHA1 d3d3042e75485fea7e08fed0cc0fc214a555c3ca lib/Win32/CommandLine.pm
+SHA1 a3e8b063b7e749d4e63e26a31609ed635cf111b0 extras/which.pl
+SHA1 16e6955416b9536ea042530512164d595c90bc0e lib/Win32/CommandLine.pm
 SHA1 6bfe136d6b9a97e3685f116b81e605c23b1851d8 lib/Win32/CommandLine.xs
 SHA1 1b72a5086fddb6b6432785b8f94f927a614f4b33 notes/General NOTES.txt
 SHA1 4c1b94dd10d2926ceb84ad0d55e70784aad99f19 notes/INSTALL notes.txt
@@ -137,12 +43,12 @@ SHA1 ab4de83203cf527ac492f8f2f5b39724fd99e943 t/00.signature.t
 SHA1 c89145ee26b6d1a9b5cd56d0178faa2d31c1a1a6 t/01.load.t
 SHA1 7ba138d02a5af2c2b247d5aa3701cbb0521a029f t/10.namespace.t
 SHA1 637108bdc7dad4a6bb69e38ac9ebe78a70e238ba t/11.commandline.t
-SHA1 e6fb93ebbd6989a71c46c4141e57daf0749e86e7 t/12.argv-ENVnullglob-f.t
-SHA1 601bc6755d3339d6f6af9881bfbf83c741a6b12d t/12.argv-ENVnullglob-t.t
-SHA1 b932706da275ddadb775bd01ce3917001f80c037 t/12.argv-tilde.t
-SHA1 c0b1ddbc05f1813e5e6b221277b79b9e4da88701 t/12.argv.t
-SHA1 87fe0feba263ceaedf6e68d4ee7e07e6bb041a3b t/12.argv.t.o
-SHA1 80db3d54d6391729023396e1d711a9362dcfe937 t/13.xx.t
+SHA1 32415624426259babae2dacece8bd7d57c21abbc t/12.argv-ENVnullglob-f.t
+SHA1 fcb6f5bf314fc5779ec9c29d132c77df4ad3b6e7 t/12.argv-ENVnullglob-t.t
+SHA1 4401bea2a4a35457017b47aa12af11d0284ffe4f t/12.argv-tilde.t
+SHA1 e579765694d30f91f660d7177fc964d6a15d557c t/12.argv.t
+SHA1 042167249715457b18e34f98543323e14bfaac5b t/12.argv.t.o
+SHA1 2373d7043614ec14dedafe8c32b58937593fb4eb t/13.xx.t
 SHA1 ae5a7f303046b350b391a7da13cc2d61c311f0a2 t/90.pod-coverage.t
 SHA1 3289085846b10903888a3658de4fb047d7b56a8b t/90.pod.t
 SHA1 b6a40ea0ed61882369e6ca082e44b924b7fe2933 t/97.meta.t
@@ -191,7 +97,7 @@ SHA1 1c86a98b9d9cbcf20fc0b0ffd3dd8d12c3f28f9c t/test.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (MingW32)
 
-iD8DBQFJz/6dddUWrzF9mccRAqvXAJ9CXHXUCXaEKue1e259krjKo3Tf8QCZAQEe
-KL+QKcdBv5QkyBOVOlMM//s=
-=rc7y
+iD8DBQFJ0+klddUWrzF9mccRAg0ZAKCfdX7LiwsU5y8HdbixH9BhO7tNwACeOASe
+/DaCExFQE11qrub2zm04ALo=
+=DvIU
 -----END PGP SIGNATURE-----

@@ -8,6 +8,8 @@
 
 ## TODO: flesh out stub documentation for additional custom actions
 
+## TODO: add/check compatibility for use of module PPM when installed (for non-ActiveState perl distributions)
+
 use strict;
 use warnings;
 use 5.006; ##	# v5.5: for AUTHOR and ABSTRACT in Makefile.PL; v5.6: for 'our', three-argument open, and indirect filehandles
