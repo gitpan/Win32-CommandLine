@@ -1,6 +1,6 @@
 #-*- tab-width: 4; mode: perl -*-
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.4.2.605 ( r185:1a7b593af15b [mercurial] ) 2009/04/02 22:16:13 rivy $
+#$Id: CommandLine.pm,v 0.4.3.50 ( r189:7d5dd7a8605e [mercurial] ) 2009/04/03 13:41:22 rivy $
 
 # Module Summary
 
@@ -10,7 +10,7 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-This document describes C<Win32::CommandLine> ($Version: 0.4.2.605 $).
+This document describes C<Win32::CommandLine> ($Version: 0.4.3.50 $).
 
 =cut
 
@@ -29,11 +29,11 @@ use warnings;
 use 5.006;			# earliest tested perl version
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.4.2.605 $ SCS tag
+# generate VERSION from $Version: 0.4.3.50 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) versions; see 'perldoc version']
-use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.2.605 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.3.50 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 # Module base/ISA and Exports
 
@@ -2313,7 +2313,7 @@ You can also look for information at:
     * CPANTS: CPAN Testing Service
 
       [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
-      [used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
+       [used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
 
     * CPANTESTERS: Test results
 
