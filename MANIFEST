@@ -1,3 +1,15 @@
+'notes/dosify notes.txt'
+'notes/General NOTES.txt'
+'notes/INSTALL notes.txt'
+'notes/powershell parsing.txt'
+'t/glob-file tests/TESTFILE [1].txt'
+'t/glob-file tests/TESTFILE \'[1]\'.txt'
+'t/glob-file tests/TESTFILE a.txt'
+'t/glob-file tests/TESTFILE b.txt'
+'t/glob-file tests/TESTFILE {.,}.txt'
+'t/glob-file tests/TESTFILE {a,b}.txt'
+'t/glob-file tests/TESTFILE {a}.txt'
+'t/glob-file tests/TESTFILE {b}.txt'
 bin/xx.bat
 Build.PL
 Build.PL.config
@@ -15,14 +27,11 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
-'notes/dosify notes.txt'
-'notes/General NOTES.txt'
-'notes/INSTALL notes.txt'
-'notes/powershell parsing.txt'
 notes/powershell-bug/t-echo-CL.pl
 notes/powershell-bug/t-echo-pl.pl
 notes/powershell-bug/t-echo.bat
 README
+SIGNATURE
 t/00.signature.t
 t/01.load.t
 t/10.namespace.t
@@ -45,14 +54,6 @@ t/99.critic.t
 t/99.kwalitee.t
 t/99.signature.t
 t/99.strict.t-
-'t/glob-file tests/TESTFILE \'[1]\'.txt'
-'t/glob-file tests/TESTFILE [1].txt'
-'t/glob-file tests/TESTFILE a.txt'
-'t/glob-file tests/TESTFILE b.txt'
-'t/glob-file tests/TESTFILE {.,}.txt'
-'t/glob-file tests/TESTFILE {a,b}.txt'
-'t/glob-file tests/TESTFILE {a}.txt'
-'t/glob-file tests/TESTFILE {b}.txt'
 t/ltrim.t
 t/prelim/build-cs.bat
 t/prelim/echo-dosify.pl
@@ -78,4 +79,3 @@ t/prelim/t-set.bat
 t/prelim/t-trim.pl
 t/prelim/versions.t
 t/test.t
-SIGNATURE

@@ -2,7 +2,7 @@ NAME
     Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 VERSION
-    This document describes `Win32::CommandLine' ($Version: 0.4.0.583 $).
+    This document describes `Win32::CommandLine' ($Version: 0.4.2.605 $).
 
 SYNOPSIS
             @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
@@ -100,11 +100,20 @@ INSTALLATION
             Build test
             Build install
 
-    The standard make idiom ( "perl Makefile.PL" -> "make" -> "make test" ->
-    "make install") is also available (though deprecated) via a Makefile.PL
-    passthrough script. Module::Build is still ultimately required for
-    installation, and Makefile.PL will offer to download and install
-    Module::Build if it is missing from your current installation.
+    Alternatively, the standard make idiom is also available (though
+    deprecated):
+
+            perl Makefile.PL
+            make
+            make test
+            make install
+
+    (On Windows platforms you should use `nmake' instead.)
+
+    As Makefile.PL is just a pass-through script, Module::Build is still
+    ultimately required for installation. Makefile.PL will offer to download
+    and install Module::Build if it is missing from your current
+    installation.
 
     PPM installation bundles should also be available in the standard PPM
     repositories (i.e. ActiveState, trouchelle.com
@@ -171,11 +180,11 @@ DEPENDENCIES
     and warnings.
 
     The optional modules `Win32', `Win32::API', `Win32::Security::SID', and
-    `Win32::TieRegistry' are recommended for installation to allow full glob
-    tilde expansions for user home directories (eg, `~administrator' expands
-    to `C:\Users\Administrator'). The basic expansion of ~ for the current
-    user has a backup implementation based on %ENV vars, and therefore will
-    still work even without the optional modules.
+    `Win32::TieRegistry' are recommended to allow full glob tilde expansions
+    for user home directories (eg, `~administrator' expands to
+    `C:\Users\Administrator'). Expansion of the single tilde (`~') has a
+    backup implementation based on %ENV variables, and therefore will still
+    work even without the optional modules.
 
 AUTHOR
     Roy Ivy III <rivy[at]cpan[dot]org>

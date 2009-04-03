@@ -1,6 +1,6 @@
 #-*- tab-width: 4; mode: perl -*-
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.4.0.583 ( r178:c297b38db706 [mercurial] ) 2009/04/01 22:08:46 rivy $
+#$Id: CommandLine.pm,v 0.4.2.605 ( r185:1a7b593af15b [mercurial] ) 2009/04/02 22:16:13 rivy $
 
 # Module Summary
 
@@ -10,7 +10,7 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-This document describes C<Win32::CommandLine> ($Version: 0.4.0.583 $).
+This document describes C<Win32::CommandLine> ($Version: 0.4.2.605 $).
 
 =cut
 
@@ -29,11 +29,11 @@ use warnings;
 use 5.006;			# earliest tested perl version
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.4.0.583 $ SCS tag
+# generate VERSION from $Version: 0.4.2.605 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) versions; see 'perldoc version']
-use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.0.583 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.2.605 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 # Module base/ISA and Exports
 
@@ -2063,11 +2063,7 @@ Or, if you're on a platform (like DOS or Windows) that doesn't require the "./" 
 	Build test
 	Build install
 
-The standard make idiom ( "perl Makefile.PL" -> "make" -> "make test" -> "make install") is also available (though deprecated) via a Makefile.PL passthrough script. Module::Build is still ultimately required for installation, and Makefile.PL will offer to download and install Module::Build if it is missing from your current installation.
-
-=for readme stop
-
-Alternatively, using the standard make idiom (if you do not have Module::Build installed):
+Alternatively, the standard make idiom is also available (though deprecated):
 
 	perl Makefile.PL
 	make
@@ -2076,11 +2072,14 @@ Alternatively, using the standard make idiom (if you do not have Module::Build i
 
 (On Windows platforms you should use C<nmake> instead.)
 
-=for readme continue
+As Makefile.PL is just a pass-through script, Module::Build is still ultimately required for installation. Makefile.PL will offer to download and install Module::Build if it is missing from your current installation.
 
 PPM installation bundles should also be available in the standard PPM repositories (i.e. ActiveState, trouchelle.com [http://trouchelle.com/ppm/package.xml]).
 
 Note: On ActivePerl installations, './Build install' will do a full installation using C<ppm> (see L<ppm>).
+
+=for future_possibles
+	Check into using the PPM perl module, if installed, for installation of this module (removes the ActiveState requirement).
 
 =for readme stop
 
@@ -2227,7 +2226,9 @@ $ENV{NULLGLOB} = 0/1 => overrides default 'nullglob' setting
 
 C<Win32::CommandLine> requires C<Carp::Assert> for internal error checking and warnings.
 
-The optional modules C<Win32>, C<Win32::API>, C<Win32::Security::SID>, and C<Win32::TieRegistry> are recommended for installation to allow full glob tilde expansions for user home directories (eg, C<~administrator> expands to C<C:\Users\Administrator>). The basic expansion of ~ for the current user has a backup implementation based on %ENV vars, and therefore will still work even without the optional modules.
+The optional modules C<Win32>, C<Win32::API>, C<Win32::Security::SID>, and C<Win32::TieRegistry> are recommended to allow full glob tilde expansions
+for user home directories (eg, C<~administrator> expands to C<C:\Users\Administrator>). Expansion of the single tilde (C<~>) has a backup
+implementation based on %ENV variables, and therefore will still work even without the optional modules.
 
 =for readme stop
 
@@ -2284,9 +2285,6 @@ Be careful with backslashed quotes within quoted strings. Note that "...\" is an
 No bugs have been reported.
 
 =head1 SUPPORT
-
-=for author_to_fill_in
-	Added from example for 'Touch' on CPAN. Possibly use a modified form.
 
 You can find documentation for this module with the perldoc command.
 

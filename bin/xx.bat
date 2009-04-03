@@ -1,5 +1,5 @@
 @rem = '--*-Perl-*--
-@::# $Id: xx.bat,v 0.4.0.583 ( r180:e48577366492 [mercurial] ) 2009/04/01 22:18:29 rivy $
+@::# $Id: xx.bat,v 0.4.2.605 ( r185:1a7b593af15b [mercurial] ) 2009/04/02 22:16:13 rivy $
 :: rename? xx.bat
 @echo off
 :: eXpand and eXecute command line
@@ -97,7 +97,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> ($Version: 0.4.0.583 $).
+This document describes C<xx> ($Version: 0.4.2.605 $).
 
 =head1 SYNOPSIS
 
@@ -178,10 +178,10 @@ use strict;
 use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.4.0.583 $ SCS tag
+# generate VERSION from $Version: 0.4.2.605 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.0.583 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.2.605 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 
@@ -194,7 +194,7 @@ use ExtUtils::MakeMaker;
 #-- config
 #my %fields = ( 'quotes' => qq("'`), 'seperators' => qq(:,=) );	#"
 
-@ARGV = Win32::CommandLine::argv( { dosify => 'true', dosquote => 'true' } ) if eval { require Win32::CommandLine; };
+@ARGV = Win32::CommandLine::argv( { dosify => 'true', dosquote => 'true' } );	# if eval { require Win32::CommandLine; }; ## depends on Win32::CommandLine so we want the error if its missing or unable to load
 
 #-- getopt
 use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ##	# no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
