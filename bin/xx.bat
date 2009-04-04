@@ -1,5 +1,5 @@
 @rem = '--*-Perl-*--
-@::# $Id: xx.bat,v 0.4.3.50 ( r189:7d5dd7a8605e [mercurial] ) 2009/04/03 13:41:22 rivy $
+@::# $Id: xx.bat,v 0.4.4.269 ( r191:d1a4a8bb3948 [mercurial] ) 2009/04/04 08:53:04 rivy $
 :: rename? xx.bat
 @echo off
 :: eXpand and eXecute command line
@@ -69,13 +69,13 @@ goto endofperl
 # execute <command> with parsed <arg(s)>
 # a .bat file to work around Win32 I/O redirection bugs with execution of '.pl' files via the standard Win32 filename extension execution mechanism (see documentation for pl2bat [ADVANTAGES, specifically Method 5] for further explanation)
 # see linux 'xargs' and 'source' commands for something similar
-# FIXED (for echo): note: command line args are dequoted so commands taking string arguments and expecting them quoted might not work exactly the same (eg, echo 'a s' => 'a s' vs x echo 'a s' => "a s")
-#	NOTE: using $"<string>" => "<string>" quote preservation behavior can overcome this issue (eg, x perl -e $"print 'test'")
+# FIXED (for echo): note: command line args are dequoted so commands taking string arguments and expecting them quoted might not work exactly the same (eg, echo 'a s' => 'a s' vs xx echo 'a s' => "a s")
+#	NOTE: using $"<string>" => "<string>" quote preservation behavior can overcome this issue (eg, xx perl -e $"print 'test'")
 #		[??] $"<string>" under bash ignores the $ if C or POSIX locale in force, and only leaves string qq'd if translated to another locale
 #	NOTE: or use another method to preserve quotes for appropriate commands (such as "'"'<string'"'" (noisy but it works)
 
 #TODO: add option to see "normal", "dosify", and "unixify" options for echo/args to see what a command using Win32::CommandLine will get
-#	??	-a = -ad => expanded arguments as x.bat would for an another executable (dosified)
+#	??	-a = -ad => expanded arguments as xx.bat would for an another executable (dosified)
 #	??	-au => unixify
 #	??	-ai => normal (non-d/u expansion) == default expansion of arguments as a perl exe using Win32::commandLine::argv()
 ##TODO (-d and -u options)
@@ -84,10 +84,10 @@ goto endofperl
 # -u: => unixify
 # -u:all => unixify='all'
 #
-# ==> DON'T do this, leave x/xx as is. it's to expand/execute cmd.exe commands which have no internal expansion ability. add another utility to show what expansion occurs for each type of expansion option.
+# ==> DON'T do this, leave xx as is. it's to expand/execute cmd.exe commands which have no internal expansion ability. add another utility to show what expansion occurs for each type of expansion option.
 
 # TODO: add option to reverse all canonical forward slashes in options to backslash to avoid interpretation as options by commands
-# TODO: add option to NOT quote a command (such as for echo) and take the special processing out of the code? (what about the echo.bat situation, maybe 'alias echo=x -Q echo $*' or 'alias echo.bat=x echo.bat' or would that not solve it....)
+# TODO: add option to NOT quote a command (such as for echo) and take the special processing out of the code? (what about the echo.bat situation, maybe 'alias echo=xx -Q echo $*' or 'alias echo.bat=xx echo.bat' or would that not solve it....)
 
 # Script Summary
 
@@ -97,7 +97,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> ($Version: 0.4.3.50 $).
+This document describes C<xx> ($Version: 0.4.4.269 $).
 
 =head1 SYNOPSIS
 
@@ -118,11 +118,11 @@ Options:
 
 =item -s
 
-Expand the command line (using Win32::CommandLine) and then B<source> the resulting expanded command. This is to allow B<modification of the current process environment> by the expanded command line. NOTE: MUST be the first argument.
+Expand the command line (using Win32::CommandLine) and then B<source> the resulting expanded command. This allows B<modification of the current process environment> by the expanded command line. NOTE: MUST be the first argument.
 
 =item -so
 
-Expand the command line (using Win32::CommandLine) and then B<source> the OUTPUT of the execution of the expanded command. This is to allow B<modification of the current process environment> directed by the OUTPUT of the execution of the expanded command line. NOTE: MUST be the first argument.
+Expand the command line (using Win32::CommandLine) and then B<source> the B<OUTPUT> of the execution of the expanded command. This allows B<modification of the current process environment> based on the OUTPUT of the execution of the expanded command line. NOTE: MUST be the first argument.
 
 =item --echo, -e
 
@@ -159,18 +159,18 @@ COMMAND...
 B<xx> will read expand the command line and execute the COMMAND.
 
 NOTE: B<xx> is designed for use with legacy commands to graft on better command line interpretation behaviors. It shouldn't generally be necessary to use B<xx> on commands which already use Win32::CommandLine::argv() internally as the command line will be re-interpreted. If that's the behavior desired, that's fine; but think about it.
-??? what about pl2bat'ed perl scripts? Since the command line is used within the wrapping batch file, is it clean for the .pl file or does it need x wrapping as well?
+??? what about pl2bat'ed perl scripts? Since the command line is used within the wrapping batch file, is it clean for the .pl file or does it need xx wrapping as well?
 
 =head1 EXAMPLES
 
 Here are some examples of what's possible in the standard cmd and tcc shells:
 
-=over
+    xx $( perl -MConfig -e "print $Config{cc}" ) $(perl -MExtUtils::Embed -e ccopts) foo.c -o foo
 
-xx $( perl -MConfig -e "print $Config{cc}" ) $(perl -MExtUtils::Embed -e ccopts) foo.c -o foo
+    xx $( perl -MConfig -e "print $Config{cc}" ) $(perl -MExtUtils::Embed -e ccopts) -c bar.c -o bar.o
 
-xx $( perl -MConfig -e "print $Config{cc}" ) $(perl -MExtUtils::Embed -e ccopts) -c bar.c -o bar.o
-#xx $( perl -MConfig -e "print $Config{ld}" ) $("perl -MExtUtils::Embed -e ldopts 2>nul") bar.o
+=for future-documentation
+	xx $( perl -MConfig -e "print $Config{ld}" ) $("perl -MExtUtils::Embed -e ldopts 2>nul") bar.o
 
 =cut
 
@@ -178,10 +178,10 @@ use strict;
 use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.4.3.50 $ SCS tag
+# generate VERSION from $Version: 0.4.4.269 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.3.50 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.4.269 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 

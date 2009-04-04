@@ -14,39 +14,39 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 86dac44b09fedd68e82d0c561688d22e1cdf73d7 Build.PL
-SHA1 3f85b1c55930780ddd1bb6676be42bfb5b1e3556 Build.PL.config
-SHA1 fda05eb3bd5b73b635f04c90c5a197177c36333f Changes
-SHA1 f235ba4160673bcb7c9d58c2f09dbc7fc0efadea LICENSE
-SHA1 5d7e6278c9de0bfab6f008eefc01771b8d7c5b16 MANIFEST
+SHA1 98b5517854b59480212c78652c082e0071b15a1e Build.PL
+SHA1 17fef200adc70c5c9ad540fcaad9c2505585282c Build.PL.config
+SHA1 fda05eb3bd5b73b635f04c90c5a197177c36333f CHANGES
+SHA1 ac15378f99f28b5fc78125aafdacedb25888bd8e LICENSE
+SHA1 c89932c037051618f7703d13a063891b5e9b3b3d MANIFEST
 SHA1 ef5dbfc62ccca28e0ea2cd45c6667843952d5c15 MANIFEST.SKIP
-SHA1 c7e22e4a020cf4b3b7c6c96d41493f1674d7b940 META.yml
+SHA1 c721ffbf1b49fea10ad01a28868d3dad1121928f META.yml
 SHA1 28fa97a8c326a672e226e68b7a0afc66a8884e87 Makefile.PL
-SHA1 a8e49a009325404f6c0e8f03f27a28e0c51a1c45 README
-SHA1 05e0831f38033a9d13ef9740d1c8d15feb1d3369 bin/xx.bat
-SHA1 71972c439d03c6bb0b14c4d1879528359f450f59 eg/to.bat
+SHA1 53698c2aad59b3943fc7da86c87c92992944f2b4 README
+SHA1 ac997d3043c986b92c113690f7643bdc206a5e57 bin/xx.bat
+SHA1 7751aee674c5e7713273c9cf600b39cca7400880 eg/to.bat
 SHA1 aacaca5c864ef8838582016c0faa91bc89344bb4 extras/dosify.bat
 SHA1 56aaf3c3194f632624c62452ee436d9af82c02ac extras/new-guid.zip
 SHA1 e47e13dcedafdfacd01769f6acbcf4acf2e12db3 extras/quote.bat
 SHA1 d0ab2bc38eacb89864baa8b5318c05f0b7189cd0 extras/so.bat
-SHA1 2f3e115caf06f7145557f96145f8537029078fb9 extras/which.pl
-SHA1 63f1202dda53662dea7c9973877c3f7f805ad5b5 lib/Win32/CommandLine.pm
+SHA1 6b4a3bfee1f3108b5290157498a1e530e0bd7c5f extras/which.pl
+SHA1 33cf899326a0742862c995bab7aaaf0afdef5ffc lib/Win32/CommandLine.pm
 SHA1 6bfe136d6b9a97e3685f116b81e605c23b1851d8 lib/Win32/CommandLine.xs
-SHA1 1b72a5086fddb6b6432785b8f94f927a614f4b33 notes/General NOTES.txt
-SHA1 4c1b94dd10d2926ceb84ad0d55e70784aad99f19 notes/INSTALL notes.txt
-SHA1 c6ff3485955d3a95d42aed88b45a874b54901d23 notes/dosify notes.txt
-SHA1 7348253347196211515676b5c084097b8497e7a2 notes/powershell parsing.txt
+SHA1 1b72a5086fddb6b6432785b8f94f927a614f4b33 notes/General-NOTES.txt
+SHA1 4c1b94dd10d2926ceb84ad0d55e70784aad99f19 notes/INSTALL-notes.txt
+SHA1 c6ff3485955d3a95d42aed88b45a874b54901d23 notes/dosify-notes.txt
 SHA1 7bfab89234660fe103de5945886bacec2b50edea notes/powershell-bug/t-echo-CL.pl
 SHA1 cb85e089cba612331664afc75002423c58d61d09 notes/powershell-bug/t-echo-pl.pl
 SHA1 6fb0fc0b78cbe5358dbe3318539ccb384099928f notes/powershell-bug/t-echo.bat
+SHA1 7348253347196211515676b5c084097b8497e7a2 notes/powershell-parsing.txt
 SHA1 ab4de83203cf527ac492f8f2f5b39724fd99e943 t/00.signature.t
 SHA1 c89145ee26b6d1a9b5cd56d0178faa2d31c1a1a6 t/01.load.t
 SHA1 7ba138d02a5af2c2b247d5aa3701cbb0521a029f t/10.namespace.t
 SHA1 637108bdc7dad4a6bb69e38ac9ebe78a70e238ba t/11.commandline.t
-SHA1 32415624426259babae2dacece8bd7d57c21abbc t/12.argv-ENVnullglob-f.t
-SHA1 fcb6f5bf314fc5779ec9c29d132c77df4ad3b6e7 t/12.argv-ENVnullglob-t.t
+SHA1 eff8c911918bcb171e4e053cf920f7a791b7a891 t/12.argv-ENVnullglob-f.t
+SHA1 8edff765eca2e31fa6ab4d9f2d71a6cb4d480f00 t/12.argv-ENVnullglob-t.t
 SHA1 4401bea2a4a35457017b47aa12af11d0284ffe4f t/12.argv-tilde.t
-SHA1 e579765694d30f91f660d7177fc964d6a15d557c t/12.argv.t
+SHA1 ce26bbf244b5ef7d486cba06ff6af84f6b6d4e10 t/12.argv.t
 SHA1 042167249715457b18e34f98543323e14bfaac5b t/12.argv.t.o
 SHA1 2373d7043614ec14dedafe8c32b58937593fb4eb t/13.xx.t
 SHA1 ae5a7f303046b350b391a7da13cc2d61c311f0a2 t/90.pod-coverage.t
@@ -61,14 +61,14 @@ SHA1 8417fe531673c06d678c0680acc55a01183d5f66 t/99.critic.t
 SHA1 7df4d2246b24402af9a442a5bdeab1d31aec85c2 t/99.kwalitee.t
 SHA1 a0fa7c7ed4d1c3ba47b0762684704e5d1db84b13 t/99.signature.t
 SHA1 6d5225fba4d7501af3210e8aed8e2c985d895d7c t/99.strict.t-
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE '[1]'.txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE [1].txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE a.txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE b.txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE {.,}.txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE {a,b}.txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE {a}.txt
-SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file tests/TESTFILE {b}.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.'[1]'.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.[1].txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.a.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.b.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{.,}.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{a,b}.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{a}.txt
+SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{b}.txt
 SHA1 0f073febe7b449eb028e5cfb2f0e2c879645cb26 t/ltrim.t
 SHA1 028b0feab40e56ff2ede1619834c70820ed37a8d t/prelim/build-cs.bat
 SHA1 d0c4bcd2d08ffdfaabb89f25bcb7c32b64288d58 t/prelim/echo-dosify.pl
@@ -82,6 +82,7 @@ SHA1 f3e11e8afb599c7b4b5b2ea3cd8765f7d880dfb3 t/prelim/normal.set
 SHA1 86d0ef09bf200348375adc62050810946c4ab268 t/prelim/sdk.set
 SHA1 51c47e38f6f12b8af84e70034c976110e9800252 t/prelim/show-args.pl
 SHA1 af194185916b419512c011394ef2d1bfd818a281 t/prelim/t-4dos.bat
+SHA1 0ce8209ed4e095735c5d2d53a3fdd92a26aa8923 t/prelim/t-check-kwal.pl
 SHA1 343ab1edf3db0d403f4805819e4c85cad845220b t/prelim/t-commandline.pl
 SHA1 3a84ac69319c433f158f72e4536a2fb66ac9e4e5 t/prelim/t-config.pl
 SHA1 0dd545eaed122f6d057d3b8ae88027d4f4c8e9e4 t/prelim/t-extmaniskip.pl
@@ -97,7 +98,7 @@ SHA1 1c86a98b9d9cbcf20fc0b0ffd3dd8d12c3f28f9c t/test.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (MingW32)
 
-iD8DBQFJ1hKLddUWrzF9mccRAuBkAJ93rQcsuVK79lquxTwQ8tMasZqbrACg56L1
-oTg/pSPzDhnAbjrFBmmf8c8=
-=fsDd
+iD8DBQFJ1yKwddUWrzF9mccRAhSmAKCX0CWNGaRXqx+2hvSVKW/sYSYu2QCgscdy
+fgAbTSthP/Z3nHyl8t8gwOI=
+=8ztm
 -----END PGP SIGNATURE-----

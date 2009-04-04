@@ -1,4 +1,4 @@
-::# $Id: to.bat,v 0.4.3.50 ( r177:b5c53dc39421 [mercurial] ) 2009/04/01 19:48:12 rivy $
+::# $Id: to.bat,v 0.4.4.269 ( r177:b5c53dc39421 [mercurial] ) 2009/04/01 19:48:12 rivy $
 :: to.bat
 :: cd with command line expansion
 :: note: removes any initial '~' for convenience

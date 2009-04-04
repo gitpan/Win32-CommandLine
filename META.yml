@@ -1,12 +1,12 @@
 ---
 name: Win32-CommandLine
-version: 0.4.3.50
+version: 0.4.4.269
 author:
   - 'Roy Ivy III <rivy[at]cpan[dot]org>'
 abstract: Retrieve and reparse the Win32 command line
-license: perl
+license: artistic_2
 resources:
-  license: http://dev.perl.org/licenses/
+  license: http://www.perlfoundation.org/artistic_license_2_0
 requires:
   Carp::Assert: 0
   File::Which: 0
@@ -28,7 +28,12 @@ recommends:
 provides:
   Win32::CommandLine:
     file: lib/Win32/CommandLine.pm
-    version: 0.4.3.50
+    version: 0.4.4.269
+no_index:
+  directory:
+    - eg
+    - extras
+    - notes
 generated_by: Module::Build version 0.31012
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
