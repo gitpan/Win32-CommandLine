@@ -1,9 +1,14 @@
-#!perl -w   -*- tab-width: 4; mode: perl -*-
+#!perl -wT  -*- tab-width: 4; mode: perl -*-
 
 # :: check that all perl files 'use strict'
 
 use strict;
 use warnings;
+
+{
+## no critic ( ProhibitOneArgSelect RequireLocalizedPunctuationVars )
+my $fh = select STDIN; $|++; select STDOUT; $|++; select STDERR; $|++; select $fh;	# DISABLE buffering on STDIN, STDOUT, and STDERR
+}
 
 use Test::More qw(no_plan);
 

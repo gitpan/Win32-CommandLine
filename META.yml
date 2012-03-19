@@ -1,40 +1,50 @@
 ---
-name: Win32-CommandLine
-version: 0.4.4.269
+abstract: 'Retrieve and reparse the Win32 command line'
 author:
   - 'Roy Ivy III <rivy[at]cpan[dot]org>'
-abstract: Retrieve and reparse the Win32 command line
-license: artistic_2
-resources:
-  license: http://www.perlfoundation.org/artistic_license_2_0
-requires:
-  Carp::Assert: 0
-  File::Which: 0
-  perl: 5.6.0
 build_requires:
+  ExtUtils::CBuilder: 0
   ExtUtils::Manifest: 1.54
   File::Basename: 0
+  File::Glob: 0
   File::Spec: 0
   File::Spec::Functions: 0
   File::Which: 0
   Test::Differences: 0
-  perl: 5.6.0
-  version: 0
-recommends:
-  Win32: 0
-  Win32::API: 0
-  Win32::Security::SID: 0
-  Win32::TieRegistry: 0
-provides:
-  Win32::CommandLine:
-    file: lib/Win32/CommandLine.pm
-    version: 0.4.4.269
+  Test::More: 0
+  perl: v5.6.1
+  version: 0.74
+configure_requires:
+  File::Basename: 0
+  File::Spec::Functions: 0
+  Module::Build: 0
+  TAP::Harness: 0
+  Test::Harness: 3.0
+generated_by: 'Module::Build version 0.3617'
+license: artistic_2
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Win32-CommandLine
 no_index:
   directory:
     - eg
     - extras
     - notes
-generated_by: Module::Build version 0.31012
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+provides:
+  Win32::CommandLine:
+    file: lib/Win32/CommandLine.pm
+    version: v0.5.5_614
+recommends:
+  Win32: 0
+  Win32::Security::SID: 0
+  Win32::TieRegistry: 0
+requires:
+  Carp::Assert: 0
+  File::Which: 0
+  Pod::Usage: 1.30
+  perl: v5.6.0
+  version: 0.74
+resources:
+  license: http://www.perlfoundation.org/artistic_license_2_0
+version: v0.5.5_614

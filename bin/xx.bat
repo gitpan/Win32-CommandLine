@@ -1,14 +1,17 @@
-@rem = '--*-Perl-*--
-@::# $Id: xx.bat,v 0.4.4.269 ( r191:d1a4a8bb3948 [mercurial] ) 2009/04/04 08:53:04 rivy $
-:: rename? xx.bat
+@rem = q{--*-Perl-*--
+@::# $Id: xx.bat,v 0.5.5.614 ( r254:a6a465ffd885 [mercurial] ) 2012/03/19 03:19:01 rivy $
 @echo off
 :: eXpand and eXecute command line
 :: similar to linux xargs
+
+:: ToDO: perl must be referenced here as 'perl.exe' to avoid infinite recursion if this is called via a 'perl.BAT' batch script as "xx perl.exe $*"; using shell aliasing will avoid this complication, but is there another way to keep the script here clean of expectation of perl as PERL.EXE?
 :: ToDO: clean up documentation/comments
-:: contains batch file tricks to allow "sourcing" of target executable output
+
+:: parent environment is kept untouched except as modified by "sourcing" of target command line text or executable output
+:: contains batch file techniques to allow "sourcing" of target command line text or executable output
 :: :"sourcing" => running commands in the parents environmental context, allowing modification of parents environment and CWD
 
-:: NOTE: 4nt/TCC/TCMD quirk => use %% for %, whereas cmd.exe % => as long as it does not introduce a known variable (eg, %not_a_var => %not_a_var although %windir => C:\WINDOWS)
+:: NOTE: TCC/4NT quirk => use %% for %, whereas CMD.exe % => as long as it does not introduce a known variable (eg, for CMD, %not_a_var => %not_a_var although %windir => C:\WINDOWS)
 
 :: localize ENV changes until sourcing is pending
 setlocal
@@ -17,57 +20,83 @@ set _xx_bat=nul
 
 ::echo *=%*
 
-if [%1]==[-s] ( goto :findUniqueTemp )
-if [%1]==[-so] ( goto :findUniqueTemp )
-goto :pass_findUniqueTemp
+if [%1]==[-s]  ( goto :find_unique_temp )
+if [%1]==[-so] ( goto :find_unique_temp )
+goto :find_unique_temp_PASS
 
-:: find bat file for sourcing and instantiate it with 1st line of text
-:findUniqueTemp
-set _xx_bat="%temp%\x.bat.source.%RANDOM%.bat"
-if EXIST %_xx_bat% ( goto :findUniqueTemp )
-echo @:: %_xx_bat% file > %_xx_bat%
-:pass_findUniqueTemp
+:: find bat file for sourcing and instantiate it with a 1st line of text
+:find_unique_temp
+set _xx_bat="%temp%\xx.bat.source.%RANDOM%.%RANDOM%.bat"
+if EXIST %_xx_bat% ( goto :find_unique_temp )
+echo @:: %_xx_bat% TEMPORARY file > %_xx_bat%
+:find_unique_temp_PASS
+
+:: %_xx_bat% is now quoted [or it is simply "nul" and doesn't need quotes]
 ::echo _xx_bat=%_xx_bat%
 
-:: 4NT/TCC
-::DISABLE command aliasing (aliasing may loop if perl is aliased to use this script to sanitize its arguments); over-interpretation of % characters; disable redirection; backquote removal from commands
+:: TCC/4NT
+:: DISABLE [1] TCC command aliasing (aliasing may loop if perl is aliased to use this script to sanitize its arguments), [2] over-interpretation of % characters, [3] redirection, [4] backquote removal from commands
 if 01 == 1.0 ( setdos /x-14567 )
 
 if NOT [%_xx_bat%]==[nul] ( goto :source_expansion )
-::echo "perl output"
+::echo "perl output - no -s/-so"
+::perl.exe -x -S %0 %*  	&:: if needed to avoid infinite recursion while using a PERL.BAT script
 perl -x -S %0 %*
-if NOT %errorlevel% == 0 (
-::	endlocal & exit /B %errorlevel%
+if %errorlevel% NEQ 0 (
+::  propagate %errorlevel%
 	exit /B %errorlevel%
 	)
 endlocal
-goto :done
+goto :_DONE
 
 :source_expansion
+:: sourcing COMMAND vs command OUTPUT is handled within the perl portion of the script (so, handle both the same within the BAT)
+:: setdos /x0 needed? how about for _xx_bat execution? anyway to save RESET back to prior settings without all env vars reverting too? check via TCC help on setdos and endlocal
+:: ? how to set setdos back to previous value instead of /x0 -- prob must use endlocal to do this
+:: ? need to reset setdos PRIOR to executing perl -s -S ... ?
 if 01 == 1.0 ( setdos /x0 )
 echo @echo OFF >> %_xx_bat%
-::echo "perl output"
+::echo perl output [source expansion { perl -x -S %0 %* }]
+::perl.exe -x -S %0 %* >> %_xx_bat%  	&:: if needed to avoid infinite recursion while using a PERL.BAT script
 perl -x -S %0 %* >> %_xx_bat%
-::echo "sourcing - started"
-if NOT %errorlevel% == 0 (
+::echo "sourcing - BAT created"
+if %errorlevel% NEQ 0 (
+	set _ERROR=%errorlevel%
+::	echo _ERROR=%ERROR%
 	erase %_xx_bat% 1>nul 2>nul
-::	endlocal &  exit /B %errorlevel%
-	exit /B %errorlevel%
+	exit /B %_ERROR%
 	)
 ::echo "sourcing & cleanup..."
-endlocal & call %_xx_bat% & erase %_xx_bat% 1>nul 2>nul
+:: propagate exit code from _xx_bat after it is sourced
+:: NOTES: :: erase RESETS %errorlevel% depending on outcome (overriding any %_xx_bat% errors
+::        :: if ERRORLEVEL N doesn't check for negative ERRORLEVELs
+:: use subroutines to preserve ENVIRONMENT variables and %ERRORLEVEL% (can use %N instead of polluting ENVIRONMENT to save %ERRORLEVEL%)
+endlocal & call :source_expansion_FINAL %_xx_bat%
+goto :_DONE
+::
+:source_expansion_FINAL
+::echo in FINAL [exec "%1%"]
+call %1
+call :source_expansion_CLEANUP %1 %errorlevel%
+goto :EOF
+:source_expansion_CLEANUP
+::echo FINAL [erase TEMP (file=%1), ERRORLEVEL=%2]
+erase %1 1>nul 2>nul
+exit /B %2
+goto :EOF
 
-:done
-goto endofperl
-@rem ';
-#!perl -w   -- -*- tab-width: 4; mode: perl -*-
-#line 65
+:_DONE
+goto :endofperl
+@rem };
+#!perl -w  -- -*- tab-width: 4; mode: perl -*-
+#NOTE: use '#line NN' (where NN = actual_line_number + 1) to set perl line # for errors/warnings
+#line 88
 
 ## TODO: add normal .pl utility documentation/POD, etc [IN PROCESS]
 
 # xx [OPTIONS] <command> <arg(s)>
 # execute <command> with parsed <arg(s)>
-# a .bat file to work around Win32 I/O redirection bugs with execution of '.pl' files via the standard Win32 filename extension execution mechanism (see documentation for pl2bat [ADVANTAGES, specifically Method 5] for further explanation)
+# BAT file to work around Win32 I/O redirection bugs with execution of '.pl' files via the standard Win32 filename extension execution mechanism (see URLref: [pl2bat : ADVANTAGES] http://search.cpan.org/dist/perl/win32/bin/pl2bat.pl#ADVANTAGES , specifically regarding pipelines and redirection for further explanation)
 # see linux 'xargs' and 'source' commands for something similar
 # FIXED (for echo): note: command line args are dequoted so commands taking string arguments and expecting them quoted might not work exactly the same (eg, echo 'a s' => 'a s' vs xx echo 'a s' => "a s")
 #	NOTE: using $"<string>" => "<string>" quote preservation behavior can overcome this issue (eg, xx perl -e $"print 'test'")
@@ -97,7 +126,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> ($Version: 0.4.4.269 $).
+This document describes C<xx> ($Version: 0.5.5.614 $).
 
 =head1 SYNOPSIS
 
@@ -178,37 +207,47 @@ use strict;
 use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.4.4.269 $ SCS tag
+# generate VERSION from $Version: 0.5.5.614 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.4.269 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+# [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
+use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.5.614 $ ))[-2]; if ($VERSION =~ /^\d+([\._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[\._](\d+)[\._](\d+)(?:[\._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 
 use Carp::Assert;
 
-use FindBin;	## NOCPAN :: BEGIN used in FindBin, so incompatible with any other modules using it; !!!: don't use within any CPAN package/module that will be 'use'd or 'require'd by other code [ok for executables] (does another way exist using File::Spec rel2abs()??); ??? any problem with this since it's not loaded and only calls outside executables
+use FindBin; # NOTE: BEGIN is used in FindBin; this can incompatible with any other modules using FindBin; DON'T use with any module submitted to CPAN; ## URLref: [perldoc::FindBin - Known Issues] http://perldoc.perl.org/FindBin.html#KNOWN-ISSUES
 
 use ExtUtils::MakeMaker;
 
 #-- config
 #my %fields = ( 'quotes' => qq("'`), 'seperators' => qq(:,=) );	#"
 
-use Win32::CommandLine;
-
-@ARGV = Win32::CommandLine::argv( { dosify => 'true', dosquote => 'true' } );	# if eval { require Win32::CommandLine; }; ## depends on Win32::CommandLine so we want the error if its missing or unable to load
-
 #-- getopt
 use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ##	# no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
+# PRE-parse for nullglob option before initial expansion of command line (to avoid double expansion of the command line and possible subshell side-effects)
 my %ARGV = ();
-# NOTE: the 'source' option '-s' is bundled into the 'echo' option since 'source' is exactly the same as 'echo' to the internal perl script. Sourcing is done by the wrapping .bat script by executing the output of the perl script.
-GetOptions (\%ARGV, 'echo|e|s', 'so', 'args|a', 'help|h|?|usage', 'man', 'version|ver|v') or pod2usage(2);
+GetOptions (\%ARGV, 'echo|e|s', 'so', 'args|a', 'nullglob=s', 'help|h|?|usage', 'man', 'version|ver|v');
+if ( exists $ARGV{'nullglob'} ) { $ENV{'nullglob'} = $ARGV{'nullglob'}; }
+
+my $showUsage = ( @ARGV < 1 );	# show usage only if no arguments (check _before_ a possible nullglob replacement of any/all globs by NULL)
+
+use Win32::CommandLine;
+
+@ARGV = Win32::CommandLine::argv( { dosify => 'true', dosquote => 'true' } );	# if eval { require Win32::CommandLine; }; ## depends on Win32::CommandLine (and installed with it) so we want the error if its missing or unable to load
+
+#-- do main getopt
+##use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ##	# no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
+%ARGV = ();
+# NOTE: the 'source' option '-s' is bundled into the 'echo' option since 'source' is exactly the same as 'echo' to the internal perl script. Sourcing is done by wrapping the BAT script by executing the output of the perl script.
+GetOptions (\%ARGV, 'echo|e|s', 'so', 'args|a', 'nullglob=s', 'help|h|?|usage', 'man', 'version|ver|v');
 #Getopt::Long::VersionMessage() if $ARGV{'version'};
-pod2usage({-verbose => 99, -sections => '', -message => (File::Spec->splitpath($0))[2].qq{ v$::VERSION}}) if $ARGV{'version'};
+do {print q{}.(File::Spec->splitpath($0))[2].qq{ v$::VERSION}.qq{\n}; exit(0);} if $ARGV{'version'};
 pod2usage(1) if $ARGV{'help'};
 pod2usage({-verbose => 2}) if $ARGV{'man'};
 
-pod2usage(1) if @ARGV < 1;
+pod2usage(1) if $showUsage;
 
 if ( $ARGV{args} )
 	{
@@ -230,6 +269,12 @@ if ( $ARGV{args} )
 # [2009-02-18] the protection is now automatically done already with the 'dosify' option above ... ? remove it for echo or just note the issue? or allow command line control of it instead? command line control might be problematic => finding the command string without reparsing the command line multiple times (could cause side effects if $(<COMMAND>) is implemented => make it similar to -S (solo and only prior to 1st non-option?)
 #		== just note that echo has no command line parsing
 
+# TODO: check echo %% "%%" => echo % % => % % [doesn't work for TCC or CMD]
+
+# untaint
+$ENV{PATH} =~ /\A(.*)\z/mxs; $ENV{PATH} = ( defined $1 ? $1 : undef );
+
+
 if ( $ARGV{args} )
 	{
 	for (my $i = 0; $i < @ARGV; $i++) { print '$ARGV'."[$i] = `$ARGV[$i]`\n"; }
@@ -239,7 +284,7 @@ if ( $ARGV{args} )
 if ( not $ARGV{args} )
 	{
 	## TODO: REDO this comment -- unfortunately the args (which are correct at this point) are reparsed while going to the target command through CreateProcess() (PERL BUG: despite explicit documentation in PERL that system bypasses the shell and goes directly to execvp() for scalar(@ARGV) > 1 although there is no obvious work around since execvp() doesn't really exist in Win32 and must be emulated through CreateProcess())
-	if ($ARGV{echo} ) { print join(" ",@ARGV); } else { if ($ARGV{so}) { my $x = join(" ",@ARGV); print `$x`; } else { system @ARGV; }}
+	if ($ARGV{echo} ) { print join(" ",@ARGV); } else { if ($ARGV{so}) { my $x = join(" ",@ARGV); print `$x`; exit($? >> 8);} else { exit((system @ARGV) >> 8); }}
 	}
 
 __END__

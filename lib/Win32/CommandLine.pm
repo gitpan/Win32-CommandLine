@@ -1,6 +1,6 @@
 #-*- tab-width: 4; mode: perl -*-
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.4.4.269 ( r191:d1a4a8bb3948 [mercurial] ) 2009/04/04 08:53:04 rivy $
+#$Id: CommandLine.pm,v 0.5.5.614 ( r260:680159cdb230 [mercurial] ) 2012/03/19 04:01:54 rivy $
 
 # Module Summary
 
@@ -10,16 +10,23 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-This document describes C<Win32::CommandLine> ($Version: 0.4.4.269 $).
+our $VERSION = qv(qw$Version: 0.5.5.614 $[1])
 
 =cut
 
 ## Perl::Critic policy exceptions
+## no critic ( ProhibitUselessNoCritic ) ## ToDO: revisit/remove
 ## no critic ( CodeLayout::ProhibitHardTabs CodeLayout::ProhibitParensWithBuiltins ProhibitPostfixControls RequirePodAtEnd )
-## ---- policies to REVISIT later
-## no critic ( RequireArgUnpacking RequireDotMatchAnything RequireExtendedFormatting RequireLineBoundaryMatching )
+## no critic ( RequireArgUnpacking RequireDotMatchAnything RequireExtendedFormatting RequireLineBoundaryMatching Capitalization ProhibitUnusedPrivateSubroutines ProhibitDeepNests ProhibitBacktickOperators ProhibitExcessComplexity ProhibitConstantPragma ProhibitCascadingIfElse RequireInterpolationOfMetachars ) # ToDO: revisit/remove
+
+# TODO: think about refactoring for taint protection
 
 # TODO: add taking nullglob from environment $ENV{nullglob}, use it if nullglob is not given as an option to the procedures (check this only in parse()?)
+
+# TODO: deal with % bug -- how can we reliably transmit %'s to subcommands? TCC and CMD handle "%%" differently
+#		** CMD => %x => %x if %x doesn't exist
+#		** TCC => %x or %x% => <null> if %x doesn't exist
+#		== NORMALIZE % handling => %% always => % for both CMD and TCC (both within and outside quotes); %x% => <null> if x doesn't exist
 
 # DONE[but DOCUMENT][TODO:] deal with possible reinterpretation of $() by xx.bat ... ? $(<>) vs $"$(<>)" ... THINK ABOUT IT ==>> NO interpretation => leave it to the <COMMAND> if needed so that the commands get what they expect (use xx within the <COMMAND> if needed), and DOCUMENT THIS
 
@@ -29,11 +36,11 @@ use warnings;
 use 5.006;			# earliest tested perl version
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.4.4.269 $ SCS tag
+# generate VERSION from $Version: 0.5.5.614 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-# [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) versions; see 'perldoc version']
-use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.4.4.269 $ ))[-2]; if ($VERSION =~ /^\d+\.\d+?$/) {$VERSION .= '.0'}; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+# [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
+use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.5.614 $ ))[-2]; if ($VERSION =~ /^\d+([._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[._](\d+)[._](\d+)(?:[._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers RequireConstantVersion )
 
 # Module base/ISA and Exports
 
@@ -43,13 +50,13 @@ use version qw(); our $VERSION; { my $defaultVERSION = '0.4'; my $generate_alpha
 #use base qw( DynaLoader Exporter );	# use base qw(Exporter) => requires perl v5.8 (according to Perl::MinimumVersion)
 #use parent qw( DynaLoader Exporter );	# use base qw(Exporter) => requires perl v5.8 (according to Perl::MinimumVersion)
 #our @EXPORT = qw( );	# no default exported symbols
-our (@ISA, @EXPORT_OK, %EXPORT_TAGS);
-BEGIN {require DynaLoader; require Exporter; @ISA = qw( DynaLoader Exporter );}
-{no strict 'refs';
+our (@ISA, @EXPORT_OK, %EXPORT_TAGS);  	## no critic ( ProhibitExplicitISA )
+BEGIN {require DynaLoader; require Exporter; @ISA = qw( DynaLoader Exporter );}  	## no critic ( ProhibitExplicitISA )
+{no strict 'refs'; ## no critic ( ProhibitNoStrict )
 #our @EXPORT = qw( );   # no default exported symbols
 %EXPORT_TAGS = (
-    'ALL'       => [ (grep { /^(?!bootstrap|dl_load_flags|isa|qv|bsd_glob|glob)[^_][a-zA-Z_]*[a-z]+[a-zA-Z_]*$/ } keys %{__PACKAGE__.'::'}) ],  # all non-internal symbols [Note: internal symbols are ALL_CAPS or start with a leading '_'] ## no critic ( ProhibitComplexRegexes )
-#   '_INTERNAL' => [ (grep { /^(?!bootstrap|dl_load_flags|isa|qv|bsd_glob|glob)[_][a-zA-Z_]*[a-z]+[a-zA-Z_]*$/ }  keys %{__PACKAGE__.'::'}) ],  # all internal functions [Note: internal functions start with a leading '_'] ## no critic ( ProhibitComplexRegexes )
+    'ALL'       => [ (grep { /^(?!bootstrap|dl_load_flags|isa|qv|bsd_glob|glob)[^_][a-zA-Z_]*[a-z]+[a-zA-Z_]*$/ } keys %{__PACKAGE__.q{::}}) ],  ## no critic ( ProhibitComplexRegexes ProhibitEnumeratedClasses ) ## all non-internal symbols [Note: internal symbols are ALL_CAPS or start with a leading '_'] 
+#   '_INTERNAL' => [ (grep { /^(?!bootstrap|dl_load_flags|isa|qv|bsd_glob|glob)[_][a-zA-Z_]*[a-z]+[a-zA-Z_]*$/ }  keys %{__PACKAGE__.q{::}}) ],  ## no critic ( ProhibitComplexRegexes ProhibitEnumeratedClasses ) ## all internal functions [Note: internal functions start with a leading '_']
     );
 @EXPORT_OK = ( map { @{$_} } values %EXPORT_TAGS );
 }
@@ -70,9 +77,14 @@ sub command_line{
 	# command_line(): returns $
 	my $retVal = _wrap_GetCommandLine();
 
+	## TODO: add %% => % test (for both TCC and CMD)
+	$retVal =~ s/%%/%/g;	# %% => % [ standardize %% handling for CMD and TCC ]
+
+	#print "c_l retVal = $retVal\n";
+
 	# 4NT/TCC/TCMD compatibility
 	my $parentEXE = _getparentname();
-	if (($parentEXE =~ /(?:4nt|tcc|tcmd)\.(?:com|exe|bat)$/i) && $ENV{CMDLINE}) { $retVal = $ENV{CMDLINE}; }
+	if ($parentEXE && ($parentEXE =~ /(?:4nt|tcc|tcmd)[.](?:com|exe|bat)$/i) && $ENV{CMDLINE}) { $retVal = $ENV{CMDLINE}; }
 
 	return $retVal;
 }
@@ -114,11 +126,86 @@ my %_G = ( # package globals
 	unbalanced_quotes	=> 0,
 	);
 
+BEGIN {## no critic ( ProhibitExcessComplexity ProhibitPunctuationVars )
+	# _initialize_subshell_calls()
+	# Test and, if needed, create a working system() call by setting PERL5SHELL
+	# URLref: [system call error 'Can't spawn "cmd.exe": No such file or directory at ...' ] http://www.perlmonks.org/?node=392416
+	# NOTE: BEGIN is used because once a system() or backtick call has been issued, perl seems to ignore any changes to PERL5SHELL, so PERL5SHELL must be correct before any system() or backtick calls are done
+	# NOTE: generally, assume the user knows what they are doing, PERL5SHELL will either be empty or set up correctly corresponding to an executable in the PATH, so only change it if undefined
+	# NOTE: no changes to PATH (once again, user knows best)
+	my $isWorkingSystem;
+	my $cmd = q{};
+	my $exe;
+	my $p5s; my $badP5S = 0;
+	my $onPATH = 0;
+	my $msg;
+	$exe = 'CMD.exe';
+	if (defined $ENV{PERL5SHELL}) {
+		# separate PERL5SHELL into components (assumes a string which is space-delimited with possible double-quote quoting)
+		# URLref: http://perldoc.perl.org/perlfaq4.html#How-can-I-split-a-%5bcharacter%5d-delimited-string-except-when-inside-%5bcharacter%5d%3f
+		my @tokens = (); my $text = $ENV{PERL5SHELL}; my $sep = q{ };
+		push(@tokens, $+) while $text =~ m{ "([^\"\\]*(?:\\.[^\"\\]*)*)"$sep?|([^$sep]+)$sep?|$sep}g;  ## no critic ( ProhibitPunctuationVars ) # ToDO: remove/revisit
+		push(@tokens, undef) if substr($text,-1,1) eq $sep;  	## no critic ( ProhibitMagicNumbers ) # ToDO: remove/revisit
+		#print "tokens = [ ".join(',', @tokens)." ]\n";
+		$exe = $tokens[0];
+		# PERL5SHELL must use doubled backslashes as path seperators in the executable path (if any are needed)
+		if ($exe =~ m/\//) { $exe = q{}; }  						# slashes as path seperators are incorrect (the executable path will be invalid for system() and backtick execution)
+		$exe =~ s/\\\\/\//g; $exe =~ s/\\//g; $exe =~ s/\//\\/g; 	# remove single slashes and turn any doubled backslashes into singles for an interpretation equivalent to system() and backtick execution
+		#print qq{exe = "$exe"\n};
+		if (@tokens < 2) { $badP5S = 1; }
+		};
+	if (-e $exe) {
+		$cmd = $exe;
+		#print "found directly @ '$cmd'\n";
+		$onPATH = 1;
+		}
+	if (not -e $cmd) {
+		# look for exe on PATH
+		my @paths = split(/;/,$ENV{PATH});
+		foreach my $path (@paths) {
+			#print qq{looking for '$exe' on PATH @ '$path'\n};
+			if (-e "$path\\$exe") {
+				$cmd = "$path\\$exe";
+				#print qq{found on PATH @ '$cmd'\n};
+				$onPATH = 1;
+				last;
+				}
+			}
+		}
+	if (not -e $cmd and defined $ENV{PERL5SHELL}) { $badP5S = 1; }
+	if (not -e $cmd and -e $ENV{SystemRoot}.'\\System32\\CMD.exe') {
+		# set full path to CMD.exe (for WindowsXP+)
+		$cmd = $ENV{SystemRoot}.'\\System32\\CMD.exe';
+		#print "found @ $cmd\n";
+		}
+	if (not -e $cmd and -e $ENV{COMSPEC}) {
+		$cmd = $ENV{COMSPEC};
+		#print "found in COMSPEC @ $cmd\n";
+		}
+	if (-e $cmd) {
+		$p5s = $cmd;
+		$p5s =~ s/\\/\\\\/g;
+		#$p5s .= ' /d/x/c';	## /d == Disable execution of AutoRun commands ; /x == /E:ON == Enable command extensions ; /c  == transient shell (execute command and return)
+		$p5s .= ' /x/c';	## [no /d for subshell consistency] ; /x == /E:ON == Enable command extensions ; /c  == transient shell (execute command and return)
+		}
+	if ($badP5S) { if (not $msg) { $msg = q{ERROR: PERL5SHELL is set incorrectly}.($onPATH ? q{} : qq{; the executable [$exe] was not found (PATH was also searched)}).($p5s ? qq{; try "set PERL5SHELL=$p5s" to correct this problem} : q{}).q{\n} } };
+	if (not $onPATH and not defined $ENV{PERL5SHELL} and $p5s) {
+		$ENV{PERL5SHELL} = $p5s;  	## no critic ( RequireLocalizedPunctuationVars )
+		if (not $msg) { $msg = qq{WARNING: PERL5SHELL was not set and CMD.exe not found on PATH; autocorrected [now, PERL5SHELL="$ENV{PERL5SHELL}"]; try "set PERL5SHELL=$ENV{PERL5SHELL}" to correct this problem\n} };
+		}
+	#print "ENV{PERL5SHELL}=$ENV{PERL5SHELL}\n";
+	$isWorkingSystem = eval { ``; return ( $? ? 0 : 1 ) };	# quietly test system() and backtick subshell calls
+	if (not $isWorkingSystem) { if (not $msg) { $msg = q{ERROR: Unable to find a shell (eg, CMD.exe) for system(); to correct the problem, add path for CMD.exe to PATH or set PERL5SHELL}.($p5s ? qq{; try "set PERL5SHELL=$p5s" to correct this problem} : q{}).q{\n} } };
+	if ($msg and not $ENV{HARNESS_ACTIVE}) { print {*STDERR} $msg; };  ## no critic ( RequireCheckedSyscalls ) # ToDO: remove/revisit
+}
+
 sub _getparentname {
+	## no critic ( ProhibitConstantPragma ProhibitPunctuationVars ) # ToDO: remove/revisit
 	# _getparentname( <null> ): returns $
 	# find parent process ID and return the exe name
-	# TODO?: add to .xs and remove Win32::API recommendation/dependence
-	my $have_Win32_API = eval { require Win32::API; 1; };
+	# DONE :: TODO?: add to .xs and remove Win32::API recommendation/dependence
+	# ToDO: look into Win32::ToolHelp (currently, doesn't compile under later ActivePerl or strawberry 5.12)
+	my $have_Win32_API = 0; #eval { require Win32::API; 1; };
 	if ($have_Win32_API) {
 		# modified from prior anon author
 		my $CreateToolhelp32Snapshot;		# define API calls
@@ -131,10 +218,13 @@ sub _getparentname {
 			#$Process32First = new Win32::API ('kernel32', 'Process32First','IP', 'N') or die "import Process32First: $!($^E)";
 			#$Process32Next = new Win32::API ('kernel32', 'Process32Next', 'IP','N') or die "import Process32Next: $!($^E)";
 			#$CloseHandle = new Win32::API ('kernel32', 'CloseHandle', 'I', 'N') or die "import CloseHandle: $!($^E)";
-			$CreateToolhelp32Snapshot = new Win32::API ('kernel32','CreateToolhelp32Snapshot', 'II', 'N') or return undef;
-			$Process32First = new Win32::API ('kernel32', 'Process32First','IP', 'N') or return undef;
-			$Process32Next = new Win32::API ('kernel32', 'Process32Next', 'IP','N') or return undef;
-			$CloseHandle = new Win32::API ('kernel32', 'CloseHandle', 'I', 'N') or return undef;
+			{
+			## no critic ( ProhibitIndirectSyntax ) ## ToDO: remove/revisit
+			$CreateToolhelp32Snapshot = new Win32::API ('kernel32','CreateToolhelp32Snapshot', 'II', 'N') or return;
+			$Process32First = new Win32::API ('kernel32', 'Process32First','IP', 'N') or return;
+			$Process32Next = new Win32::API ('kernel32', 'Process32Next', 'IP','N') or return;
+			$CloseHandle = new Win32::API ('kernel32', 'CloseHandle', 'I', 'N') or return;
+			}
 		}
 
 		use constant TH32CS_SNAPPROCESS =>  0x00000002;
@@ -161,8 +251,8 @@ sub _getparentname {
 
 		# Set the size of the structure before using it.
 
-		my $dwSize = MAX_PATH + 36;
-		my $pe32 = pack 'I9C260', $dwSize, 0 x 8, '0' x MAX_PATH;
+		my $dwSize = MAX_PATH + 36;  								## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
+		my $pe32 = pack 'I9C260', $dwSize, 0 x 8, '0' x MAX_PATH;  	## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
 		my $lppe32 = pack 'P', $pe32;
 
 		# Retrieve information about the first process, and exit if unsuccessful
@@ -172,17 +262,17 @@ sub _getparentname {
 		do {
 			if (not $ret) {
 				$CloseHandle-> Call($hProcessSnap);
-				warn "Process32First: ret=$ret, $!($^E)";
+				Carp::carp "Process32First: ret=$ret, $!($^E)";
 				#last;
-				return undef;
+				return;
 			}
 
 			# return ppid if pid == my pid
 
-			my $th32ProcessID = unpack 'I', substr $pe32, 8, 4;
-			my $th32ParentProcessID = unpack 'I', substr $pe32, 24, 4;
-			my $szEXE = '';
-			my $i = 36;
+			my $th32ProcessID = unpack 'I', substr $pe32, 8, 4;			## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
+			my $th32ParentProcessID = unpack 'I', substr $pe32, 24, 4;	## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
+			my $szEXE = q{};
+			my $i = 36;													## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
 			my $c = unpack 'C', substr $pe32, $i, 1;
 			while ($c) { $szEXE .= chr($c); $i++; $c = unpack 'C', substr $pe32, $i, 1; }
 			$ppids{$th32ProcessID} = $th32ParentProcessID;
@@ -207,8 +297,9 @@ sub _getparentname {
 			##$parentEXE = $exes{$ppids{$$}};
 			return $exes{$ppids{$$}};
 			}
-		return undef;
+		#return;
 		}
+	return;
 }
 
 sub	_dosify {
@@ -220,18 +311,21 @@ sub	_dosify {
 	#				 {a"\b\\"c d} => {[a\b\c][d]}, {a"\b\\"c" d} => {[a\b\c d]}, {a"\b\\"c d} => {[a\b\c][d]}, {a"\b\\c d} => {[a\b\\c d]}
 	@_ = @_ ? @_ : $_ if defined wantarray;		## no critic (ProhibitPostfixControls)	## break aliasing if non-void return context
 
-	# TODO: check these characters for necessity => PIPE characters [<>|] and internal double quotes for sure, [:]?, [*?] glob chars needed?, what about glob character set chars [{}]?
-	my $dos_special_chars = '"<>|';
+	## no critic ( ProhibitUnusualDelimiters ) # ToDO: remove/revisit
+
+	# TODO: check these characters for necessity => PIPE characters [<>|] and internal double quotes for sure, _likely_ escape character [^], [%]?, [:]?, [*?] glob chars needed?, what about glob character set chars [{}]?
+	#	**	should we make the assumption that these are paths? or pass an argument to that effect (eg, path => 0/1) _OR_ separate function (ie, _dosify_path() )?
+	my $dos_special_chars = '"<>|^';
 	my $dc = quotemeta( $dos_special_chars );
 	for (@_ ? @_ : $_)
 		{
 		#print "_ = $_\n";
 		s:\/:\\:g;								# forward to back slashes
 		if ( $_ =~ qr{(\s|[$dc])} )
-			{
+			{# found whitespace and/or special characters which must be double quoted
 			#print "in qr\n";
-			s:":\\":g;							# CMD: preserve double-quotes with backslash	# TODO: change to $dos_escape	## no critic (ProhibitUnusualDelimiters)
-			s:([\\]+)\\":($1 x 2).q{\\"}:eg;	# double backslashes in front of any \" to preserve them when interpreted by DOS/CMD
+			s:":\\":g;							# CMD: preserve double-quotes with backslash	# TODO: change to $dos_escape
+			s:([\\]+)\\":($1 x 2).q{\\"}:eg;	## no critic ( ProhibitUnusedCapture ) ## double backslashes in front of any \" to preserve them when interpreted by DOS/CMD
 			$_ = q{"}.$_.q{"};					# quote the final token
 			};
 		}
@@ -247,6 +341,8 @@ sub	_dos_quote {
 	#				 {a"\b\\"c d} => {[a\b\c][d]}, {a"\b\\"c" d} => {[a\b\c d]}, {a"\b\\"c d} => {[a\b\c][d]}, {a"\b\\c d} => {[a\b\\c d]}
 	@_ = @_ ? @_ : $_ if defined wantarray;		## no critic (ProhibitPostfixControls)	## break aliasing if non-void return context
 
+	## no critic ( ProhibitUnusualDelimiters ) # ToDO: remove/revisit
+
 	# TODO: check these characters for necessity => PIPE characters [<>|] and internal double quotes for sure, [:]?, [*?] glob chars needed?, what about glob character set chars [{}]?
 	my $dos_special_chars = '"<>|';
 	my $dc = quotemeta( $dos_special_chars );
@@ -257,8 +353,8 @@ sub	_dos_quote {
 		if ( $_ =~ qr{(\s|[$dc])} )
 			{
 			#print "in qr\n";
-			s:":\\":g;							# CMD: preserve double-quotes with backslash	# TODO: change to $dos_escape	## no critic (ProhibitUnusualDelimiters)
-			s:([\\]+)\\":($1 x 2).q{\\"}:eg;	# double backslashes in front of any \" to preserve them when interpreted by DOS/CMD
+			s:":\\":g;							# CMD: preserve double-quotes with backslash	# TODO: change to $dos_escape
+			s:([\\]+)\\":($1 x 2).q{\\"}:eg;	## no critic ( ProhibitUnusedCapture ) ## double backslashes in front of any \" to preserve them when interpreted by DOS/CMD
 			$_ = q{"}.$_.q{"};					# quote the final token
 			};
 		}
@@ -352,7 +448,7 @@ sub	_decode {
 	my $c = quotemeta('abefnrtv'.$_G{escape_char}.$_G{single_q}.$_G{double_q});		# \0 is covered by octal matches
 	#for my $k (sort keys %table) { #print "table{:$k:} = $table{$k}\n";}
 #	for (@_ ? @_ : $_) { s/\\([$c]|[0-7]{1,3}|x[0-9a-fA-F]{2}|X[0-9a-fA-F]{2}|c.)/:$1:/g }
-	for (@_ ? @_ : $_) { s/\\([0-7]{1,3}|[$c]|x[0-9a-fA-F]{2}|X[0-9a-fA-F]{2}|c.)/$table{$1}/g }
+	for (@_ ? @_ : $_) { s/\\([0-7]{1,3}|[$c]|x[0-9a-fA-F]{2}|X[0-9a-fA-F]{2}|c.)/$table{$1}/g } ## no critic ( ProhibitEnumeratedClasses ) ##
 
 	return wantarray ? @_ : "@_";
 	}
@@ -364,7 +460,7 @@ sub	_decode_qq {
 	# decode double quoted string (replace internal \" with ")
 	@_ = @_ ? @_ : $_ if defined wantarray;		## no critic (ProhibitPostfixControls)	## break aliasing if non-void return context
 
-	my $c = quotemeta('"'.$_G{escape_char});
+	my $c = quotemeta(q{"}.$_G{escape_char});
 	for (@_ ? @_ : $_) { s/\\([$c])/$1/g };	# replace \<x>'s with <x>'s
 
 	return wantarray ? @_ : "@_";
@@ -382,6 +478,8 @@ sub	_decode_dosqq {
 	# TODO: Make it work for the most part now THEN TEST, adding PATHOLOGIC cases as necessary (or leaving it 'more logical' and documenting the issues)
 	@_ = @_ ? @_ : $_ if defined wantarray;		## no critic (ProhibitPostfixControls)	## break aliasing if non-void return context
 
+	## no critic ( ProhibitUnusualDelimiters ) # ToDO: remove/revisit
+
 	my $e = quotemeta q{\\};	# escape character
 	my $q = quotemeta q{"};		# double-quote (")
 	for (@_ ? @_ : $_)
@@ -398,7 +496,7 @@ sub	_decode_dollarqq {
 	# decode double quoted string (replace internal \" with ")
 	@_ = @_ ? @_ : $_ if defined wantarray;		## no critic (ProhibitPostfixControls)	## break aliasing if non-void return context
 
-	my $c = quotemeta('$"'.$_G{escape_char});
+	my $c = quotemeta(q{$"}.$_G{escape_char});  	## no critic ( RequireInterpolationOfMetachars )
 	for (@_ ? @_ : $_) { s/\\([$c])/$1/g };	# replace \<x>'s with <x>'s
 
 	return wantarray ? @_ : "@_";
@@ -407,7 +505,7 @@ sub	_decode_dollarqq {
 sub	_is_const { my $is_const = !eval { ($_[0]) = $_[0]; 1; }; return $is_const; }
 
 sub	_ltrim {
-	# _ltrim( $|@ [,\%] ): returns $|@ ['shortcut' function] (with optional hash_ref containing function options)
+	# _ltrim( $|@:STRING(s) [,\%:OPTIONAL_ARGS] ): returns $|@ ['shortcut' function] (with optional hash_ref containing function options)
 	# trim leading characters (defaults to whitespace)
 	# NOTE: not able to currently determine the difference between a function call with a zero arg list {"f(());"} and a function call with no arguments {"f();"}
 	#		so, by the Principle of Least Surprise, f() in void context is disallowed instead of being an alias of "f($_)" so that f(@array) doesn't silently perform f($_) when @array has zero elements
@@ -573,12 +671,14 @@ sub	_zero_position_v1 {
 			last;
 			}
 		#print 'rel2abs(arg) = '.File::Spec->rel2abs($arg)."\n";
-		if (-e $arg	&& (lc(File::Spec->rel2abs(	$zero_dq ))	eq lc(File::Spec->rel2abs( $arg	))))
+		# TODO: rethink file testing (-e is not sufficient as directories of same prefix may block resolution; but is -f or (-f & !-d) sufficient/correct? what about symbolic links/junctions, pipes, etc?
+		# TODO: add tests to specify appropriate behaviour for colliding names
+		if (-f $arg	&& (lc(File::Spec->rel2abs(	$zero_dq ))	eq lc(File::Spec->rel2abs( $arg	))))
 			{ #	rel2abs	match
 			#print "\tMATCH	(rel2abs)\n";
 			last;
 			}
-		if (!-e	$arg)
+		if (!-f	$arg)
 			{ #	find file on PATH with File::Which (needed for compiled	perl executables)
 			my ($fn, $r);
 			my ($split_1, $split_2);
@@ -591,9 +691,10 @@ sub	_zero_position_v1 {
 			#print $arg."\t\t=(find	with which)> ".((defined $r) ? $r :	"undef");
 			if (lc($r) eq lc(File::Spec->rel2abs($zero)))
 				{# which found
-				#print "\tMATCH	(which)\n";
+				#print "\tMATCH (via which)\n";
 				last;
 				}
+			#else { print "\NO match (via which)\n"; }
 			}
 		#print "\n";
 		}
@@ -607,6 +708,9 @@ sub	_argv_parse{
 	# [\%]: an optional hash_ref containing function options as named parameters
 	## NOTE: once $(<...>) is implemented => need to parse "\n" as whitespace (use the /s argument for regexp) because there may be embedded newlines as whitespace
 	## TODO: formalize the grammar in documentation (very similar to bash shell grammer, except no $VAR interpretation, $(...) not interpreted within simple "..." (however, it is within $"..." => no further interpretation of $(...) output), quote removal within $(...) [to protect pipes]
+
+	## no critic ( ProhibitPunctuationVars ) # ToDO: remove/revisit
+
 	my %opt	= (
 		_glob_within_qq => 0,		# = true/false [default = false]	# <private> if true, globbing within double quotes is performed, rather than only for "bare"/unquoted glob characters
 		_carp_unbalanced => 1,		# = 0/true/'quotes'/'subshells' [default = true] # <private> if true, carp for unbalanced command line quotes or subshell blocks
@@ -672,7 +776,7 @@ sub	_argv_parse{
 					#print "ss:block_chunk = `$block_chunk`\n";
 					#print "ss:type = `$type`\n";
 					#print "ss:s = `$s`\n";
-					if ($block_chunk eq q{}) { die 'unbalanced subshell block [#1]'; }
+					if ($block_chunk eq q{}) { Carp::croak 'unbalanced subshell block [#1]'; }
 					elsif ($type eq 'subshell_start') { $in_subshell_n++; }
 					elsif ($type eq 'subshell_end') { $in_subshell_n--; }
 					else {
@@ -684,7 +788,7 @@ sub	_argv_parse{
 				#print "block = `$block`\n";
 				my $output = `$block`;
 				#print "output = `$output`\n";
-				if ($opt{_die_subshell_error} and $?) { die 'error '.($? >> 8).' while executing subshell block `'.$block.'`'; }
+				if ($opt{_die_subshell_error} and $?) { Carp::croak 'error '.q{'}.(($? > 0) ? $? >> 8 : $?).q{'}.' while executing subshell block `'.$block.q{`}; }  	## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
 				$output =~ s/\n$//s; # remove any final NL (internal NLs and ending NLs > 1 are preserved, if present)
 				$s = $output . $s; # graft to the front of $s for further interpretation
 				_ltrim($s);
@@ -706,7 +810,7 @@ sub	_argv_parse{
 						$ss = $2;
 						if (length($o) > 1)
 							{
-							if (substr($o, 0, 1) eq '\\') { $o = substr($o, 1, 1); }
+							if (substr($o, 0, 1) eq q{\\}) { $o = substr($o, 1, 1); }
 							else
 								{# subshell_start
 								#print "\$double-quote: in subshell consumer\n";
@@ -721,7 +825,7 @@ sub	_argv_parse{
 									#print "ssc:block_chunk = `$block_chunk`\n";
 									#print "ssc:type = `$type`\n";
 									#print "ssc:ss = `$ss`\n";
-									if ($block_chunk eq q{}) { die 'unbalanced subshell block [#2]'; }
+									if ($block_chunk eq q{}) { Carp::croak 'unbalanced subshell block [#2]'; }
 									elsif ($type eq 'subshell_start') { $in_subshell_n++; }
 									elsif ($type eq 'subshell_end') { $in_subshell_n--; }
 									else {
@@ -733,7 +837,7 @@ sub	_argv_parse{
 								#print "dq.block = `$block`\n";
 								my $output = `$block`;
 								#print "dq.output = `$output`\n";
-								if ($opt{_die_subshell_error} and $?) { die 'error '.($? >> 8).' while executing subshell block `'.$block.'`'; }
+								if ($opt{_die_subshell_error} and $?) { Carp::croak 'error '.q{'}.(($? > 0) ? $? >> 8 : $?).q{'}.' while executing subshell block `'.$block.q{`}; }  	## no critic ( ProhibitMagicNumbers ) # ToDO: revisit/remove
 								$output =~ s/\n$//s; # remove any final NL (internal NLs and ending NLs > 1 are preserved, if present)
 								$o = $output;	# output as single token ## do this within $"..."
 								}
@@ -853,7 +957,7 @@ sub _get_next_chunk{
 	#print "gc.2.s = `$s`\n";
 	if ($s ne q{})
 		{
-		if ($s =~ /^(\$\()(.*)$/s)
+		if ($s =~ /^(\$[(])(.*)$/s)
 			{# subshell_start == unquoted '$(' characters
 			# $1 = subshell block starting token
 			# $2 = rest	of string [if exists]
@@ -863,7 +967,7 @@ sub _get_next_chunk{
 			$ret_chunk .= $1;
 			$s = defined($2) ? $2 : q{};
 			}
-		elsif ($s =~ /^(\))(.*)$/s)
+		elsif ($s =~ /^([)])(.*)$/s)
 			{# subshell_end == unquoted ')' character
 			# $1 = subshell block ending token
 			# $2 = rest	of string [if exists]
@@ -922,7 +1026,7 @@ sub _get_next_chunk{
 			Carp::Assert::assert( $s =~	/^\S/ );
 			#print "s = $s\n";
 			$ret_type = 'simple';
-			while ($s =~ /^([^$q_qm\s\$\)]+)(.*)$/s)
+			while ($s =~ /^([^$q_qm\s\$)]+)(.*)$/s)
 				{
 				# $1 = non-whitespace/non-quoted/non-subshell_start/non-subshell_end token
 				# $2 = rest	of string [if exists]
@@ -932,7 +1036,7 @@ sub _get_next_chunk{
 				my $two = $2;
 				$ret_chunk .= defined($1) ? $1 : q{};
 				$s = defined($2) ? $2 : q{};
-				if ( $two =~/^\$\(/ ) { last; }
+				if ( $two =~/^\$[(]/ ) { last; }
 				elsif ( $two =~ /^(\$)(.*)$/ )
 					{
 					$ret_chunk .= $1;
@@ -948,6 +1052,9 @@ sub _get_next_chunk{
 sub	_argv_do_glob{
 	# _argv_do_glob( @args ): returns @
 	## @args = []of{token=>'', chunks=>chunk_aref[]of{chunk=>'',glob=>0,id=>''}, globs=>glob_aref[]}
+
+	## no critic ( ProhibitUnusualDelimiters ) # ToDO: remove/revisit
+
 	my %opt	= (
 		dosquote => 0,				# = 0/<true>/'all' [default = 0]	# if true, convert all non-globbed ARGS to DOS/Win32 CLI compatible tokens (escaping internal quotes and quoting whitespace and special characters)
 		dosify => 0,				# = 0/<true>/'all' [default = 0]	# if true, convert all globbed ARGS to DOS/Win32 CLI compatible tokens (escaping internal quotes and quoting whitespace and special characters); 'all' => do so for for all ARGS which are determined to be files
@@ -1090,8 +1197,9 @@ sub	_zero_position{
 	# _zero_position( @args, \% ): returns $
 	# find and return the position of the current executable within the given argument array
 	# @args = the parsed argument array		## @args = []of{token=>'', chunks=>chunk_aref[]of{chunk=>'',glob=>0,id=>''}, globs=>glob_aref[]}
+	## no critic ( ProhibitEscapedCharacters ) # ToDO: remove/revisit
 	my %opt	= (
-		''=>'',							# placeholder to allow {''=><x>} as a named optional parameter group because the function takes complex parameters which will be seen as a HASHREF
+		q{}=>q{},						# placeholder to allow {''=><x>} as a named optional parameter group because the function takes complex parameters which will be seen as a HASHREF
 		quote_re => qq{[\x22\x27]},		# = <regexp> [default = single/double quotes]	## allowable quotation marks (possibly surrounding the executable name)
 		);
 
@@ -1109,7 +1217,7 @@ sub	_zero_position{
 
 	my $pos;
 	# find $0 in the ARGV array
-	#print "0 =	$0\n";
+	#print "0 = $0\n";
 	#win32 - filenames are case-preserving but case-insensitive	[so, solely case difference compares equal => convert to lowercase]
 	# TODO: for use in C# programs under PerlScript => if $PROGRAM_NAME eq q{}, assume 0 position is correct (any other ramifications?)
 	my $zero = $PROGRAM_NAME;	   ## no critic	(Variables::ProhibitPunctuationVars)
@@ -1118,11 +1226,11 @@ sub	_zero_position{
 
 	#print "zero = $zero\n";
 	#print "zero_lc	= $zero_lc\n";
-	#print "zero_dq	= $zero_dq\n";
+	#print "zero_dq = $zero_dq\n";
 
 	if ($zero eq q{}) { return 0 };	# if $0/$zero eq q{} then the script may be running under some scripting harness, assume the 1st arg is the command name and return (allows use in C# under MSScriptControl.ScriptControlClass harness)
 
-	#print "#args	= $#args\n";
+	#print '#args = '.@args."\n";
 	#print "$me:starting search\n"; for (my $pos=0; $pos<=$#args; $pos++) { print "args[$pos]->{token} = `$args[$pos]->{token}`\n"; }
 #	while (my $arg = shift @a) {
 	for	($pos=0; $pos<=$#args; $pos++) {		## no critic (ProhibitCStyleForLoops)
@@ -1143,12 +1251,14 @@ sub	_zero_position{
 			last;
 			}
 		#print 'rel2abs(arg) = '.File::Spec->rel2abs($arg)."\n";
-		if (-e $arg	&& (lc(File::Spec->rel2abs(	$zero_dq ))	eq lc(File::Spec->rel2abs( $arg	))))
+		# TODO: rethink file testing (-e is not sufficient as directories of same prefix may block resolution; but is -f or (-f & !-d) sufficient/correct? what about symbolic links/junctions, pipes, etc?
+		# TODO: add tests to specify appropriate behaviour for colliding names
+		if (-f $arg	&& (lc(File::Spec->rel2abs(	$zero_dq ))	eq lc(File::Spec->rel2abs( $arg	))))
 			{ #	rel2abs	match
-			#print "\tMATCH	(rel2abs)\n";
+			#print "\tMATCH	(rel2abs)";
 			last;
 			}
-		if (!-e	$arg)
+		if (!-f	$arg)
 			{ #	find file on PATH with File::Which (needed for compiled	perl executables)
 			my ($fn, $r);
 			my ($split_1, $split_2);
@@ -1159,11 +1269,12 @@ sub	_zero_position{
 			$r = File::Which::which($fn);
 			if (defined	$r)	{ $r = File::Spec->rel2abs(	$r ); }
 			#print $arg."\t\t=(find	with which)> ".((defined $r) ? $r :	"undef");
-			if (lc($r) eq lc(File::Spec->rel2abs($zero)))
+			if ($r && (lc($r) eq lc(File::Spec->rel2abs($zero))) )
 				{# which found
-				#print "\tMATCH	(which)\n";
+				#print "\tMATCH	(using which)";
 				last;
 				}
+			#else { print "\tNO match (using which())"; }
 			}
 		#print "\n";
 		}
@@ -1209,7 +1320,7 @@ sub	_argv{
 	if ($opt{remove_exe_prefix})
 		{# remove $0	(and any prior entries)	from ARGV array	(and the matching glob_ok signal array)
 		#my $p = _zero_position( @args, {} );
-		my $p = _zero_position( @args, {''=>''} );
+		my $p = _zero_position( @args, {q{}=>q{}} );
 		#print "p = $p\n";
 		#print "$me:pre-removing\n"; for (my $pos=0; $pos<=$#args; $pos++) { #print "args[$pos]->{token} = `$args[$pos]->{token}`\n"; }
 		@args = @args[$p+1..$#args];
@@ -1282,7 +1393,7 @@ sub	_quote_gc_meta{
 sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 	# _argv( $command_line )
 
-	# [seperated from argv() for testing]
+	# [separated from argv() for testing]
 	# '...'		=> literal (no escapes and no globbing within quotes)
 	# $'...'	=> ANSI	C string escapes (\a, \b, \e, \f, \n, \r, \t, \v, \\, \', \n{1,3}, \xh{1,2}, \cx; all other	\<x> =>\<x>), no globbing within quotes
 	##NOT# "..." =>	literal	(no	escapes	but	allows internal	globbing) [differs from	bash]
@@ -1305,7 +1416,7 @@ sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 	# [%]: an optional hash_ref	containing function	options as named parameters
 
 	# ???: distinction between cmd.exe argument quoting and 'dosify' == change to forward slash path dividers; 'unixify' == just backslash dividers or quote as well?
-	# ???: cmdify, bashify, or quote => 0/cmd/bash to use as seperate from path divider changes
+	# ???: cmdify, bashify, or quote => 0/cmd/bash to use as separate from path divider changes
 	my %opt	= (
 		dosify => 0,				# = 0/<true>/'all' [default = 0]	# if true, convert all globbed ARGS to DOS/Win32 CLI compatible tokens (escaping internal quotes and quoting whitespace and special characters); 'all' => do so for for all ARGS which are determined to be files
 		unixify => 0,				# = 0/<true>/'all' [default = 0]	# if true, convert all globbed ARGS to UNIX path style; 'all' => do so for for all ARGS which are determined to be files
@@ -1386,12 +1497,12 @@ sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 			# complex token	containing quote delimeters
 			Carp::Assert::assert( $s =~	/[$q_qm]/ );
 			#my	$t = q{};
-			while ($s =~ /^[^\s]/)
+			while ($s =~ /^\S/)
 				{# parse full token containing quote delimeters
 				# $s contains non-whitespace characters and starts with non-whitespace
 				if ($s =~ /^((?:[^\s$q_qm\$]|\$[^$q_qm])*)((?:(\$([$q_qm]))|[$q_qm])?(.*))$/)
 					{# complex token with internal quotes and leading non-quote/non-whitespace characters
-					# initial non-quotes now seperated
+					# initial non-quotes now separated
 					# $1 = initial non-quote/non-whitespace characters (except any $<quote-char>)
 					# $2 = rest	of string after	non-quote characters (including	possible $<quote-char><...>)
 					# $3 = $<quote-char> [if exists]
@@ -1481,7 +1592,7 @@ sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 							{
 							my $quote;
 							my $dequoted_token;
-							my $glob_this_token = 0;
+							$glob_this_token = 0;
 							#print "one	= $one\n";
 							#if	($one =~ /^\'.*[$gc]+.*/) {	$glob_this_token = 0; }
 							#$glob_this_token = 0 if	($one =~ /^\'.*[$gc]+.*/);		## no critic (ProhibitPostfixControls)
@@ -1665,7 +1776,7 @@ sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 
 	# TODO: figure out a method to allow '~"<username>"' to be globbed correctly since <username>'s can have internal whitespace
 	#		currently, this is handled by adding the <username> with nulled internal whitespace into the home_path hash (but this process can result in collisions)
-	#		* it may be difficult since globbing is done based on the "chunk" of the token and non-quoted and quoted portions are "chunked" into seperate pieces (and what about ~"administrator"TEST == how far should the concatenation go for a possible match?)
+	#		* it may be difficult since globbing is done based on the "chunk" of the token and non-quoted and quoted portions are "chunked" into separate pieces (and what about ~"administrator"TEST == how far should the concatenation go for a possible match?)
 
 	#for my $k (keys %home_paths) { #print "$k => $home_paths{$k}\n"; }
 	#print "home_path_re = $home_path_re\n";
@@ -1732,7 +1843,8 @@ sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 
 		if ( $opt{nullglob} )
 			{
-			$glob_flags	|= GLOB_NOMAGIC;
+			#$glob_flags	|= GLOB_NOMAGIC;	# TEST: returns pattern ONLY if doesn't contain "*", "?" or "["? ## should this be something else instead?
+			#$glob_flags	&= ~GLOB_NOCHECK;
 			}
 		else
 			{
@@ -1745,6 +1857,7 @@ sub	_argv_v1{	## no critic ( Subroutines::ProhibitExcessComplexity )
 
 			if ($pat =~ m/$home_path_re/)
 				{# deal with possible prefixes
+				## no critic ( ProhibitUnusualDelimiters ) # ToDO: remove/revisit
 				# TODO: NOTE: this allows quoted <usernames> which is different from bash, but needed because Win32 <username>'s can have internal whitespace
 				# TODO: CHECK: are there any cases where the $s wouldn't match but $pat would causing incorrect fallback string?
 				#print "pat(pre-prefix)  = `$pat`\n";
@@ -1833,7 +1946,7 @@ my %home_paths = ();
 if ($ENV{USERNAME} && $ENV{USERPROFILE}) { $home_paths{q{}} = $home_paths{lc($ENV{USERNAME})} = $ENV{USERPROFILE}; };
 
 # add All Users / Public
-$home_paths{'all users'} = $ENV{ALLUSERSPROFILE};					#?? should this be $ENV{PUBLIC} on Vista?
+$home_paths{'all users'} = $ENV{ALLUSERSPROFILE};					#?? should this be $ENV{PUBLIC} on Vista/Win7+?
 if ($ENV{PUBLIC}) { $home_paths{public} = $ENV{PUBLIC}; }
 else { $home_paths{public} = $ENV{ALLUSERSPROFILE}; }
 
@@ -1902,7 +2015,7 @@ return %home_paths;
 #my	$position =	pos	$$textref || 0;
 #
 ##--- config
-#my	$unbalanced_as_seperate_last_arg = 0;		# if unbalanced	quote exists, make it a	last seperate argument (even if	not	seperated from last	argument by	whitespace)
+#my	$unbalanced_as_separate_last_arg = 0;		# if unbalanced	quote exists, make it a	last separate argument (even if	not	separated from last	argument by	whitespace)
 ##---
 #
 #my	$r = q{};
@@ -1941,7 +2054,7 @@ return %home_paths;
 #		$s = $suffix;
 #		if ($tok eq	q{}) {
 #			#$Win32::CommandLine::_unbalanced_command_line =	1;
-#			if (($r	ne q{} && !$unbalanced_as_seperate_last_arg) ||	($r	eq q{})) {
+#			if (($r	ne q{} && !$unbalanced_as_separate_last_arg) ||	($r	eq q{})) {
 #				$r .= $suffix; $s =	q{};
 #				}
 #			#print "r =	'$r'\n";
@@ -1988,34 +2101,40 @@ return %home_paths;
 	Write a full description of the module and its features here.
 	Use subsections (=head2, =head3) as appropriate.
 
-This module is used to reparse the Win32 command line, automating better quoting and globbing of the command line. Globbing is full bash POSIX compatible globbing, including subshell expansions. With the use of the companion script (B<C<xx.bat>>) and B<C<doskey>> for macro aliasing, you can add full-fledged bash compatible string quoting/expansion and file globbing to I<any> Win32 executable.
+This module is used to reparse the Win32 command line, automating better quoting and globbing of the command line. Globbing is full bash POSIX compatible globbing, including subshell expansions. With the use of the companion script (B<C<xx.bat>>) and B<C<doskey>> for macro aliasing, you can add fully implemented, bash compatible, string quoting/expansion and file globbing to I<any> Win32 executable.
 
-This module is compatible with both B<C<cmd.exe>> and B<C<4nt/tcc/tcmd>> shells, and adds better parsing and bash glob expansion to I<any> external command (by using the included B<C<xx.bat>> batch script).
+This module is compatible with both B<C<cmd.exe>> and B<C<4nt/tcc/tcmd>> shells, and can be used to add better parsing and bash glob expansion to I<any> external command (by using the included B<C<xx.bat>> batch script).
 
 =head2 C<CMD.EXE>
 
-	doskey type=call xx type $*
-	type [a-c]*.pl
-	doskey perl=call xx perl $*
-	perl -e 'print "test"'	[o/w FAILS without commandline reinterpretation]
+    doskey type=call xx type $*
+    type [a-c]*.pl
+    doskey perl=call xx perl $*
+    perl -e 'print "test"'		[would otherwise FAIL]
 
 =head2 C<4NT/TCC/TCMD>
 
-	alias type=call xx type
-	type [a-c]*.pl
-	alias perl=call xx perl
-	perl -e 'print "test"'	[o/w FAILS without commandline reinterpretation]
+    alias type=call xx type
+    type [a-c]*.pl
+    .
+    alias perl=call xx perl
+    perl -e 'print "test"'		[would otherwise FAIL]
 
 Note that bash compatible character expansion and globbing is available, including glob meta-notations such as "C<a[bc]*>" or "C<foo.{bat,pl,exe,o}>".
 
 =head2 Command line string/character expansion
 
- '...'    literal (no escapes and no globbing within quotes)
- "..."    literal (no escapes and no globbing within quotes)
- $'...'   string including all ANSI C string escapes (\a, \b, \e, \f, \n, \r, \t, \v, \\, \', \n{1,3}, \xh{1,2}, \cx; all other escaped characters: \<x> =>\<x>); no globbing within quotes
- $"..."   literal (no escapes and no globbing within quotes) [same as "..."]
- $( ... ) subshell expansion [subshell commandline is _not_ expanded]
- $("...") subshell expansion (quotes removed) [subshell commandline is _not_ expanded]
+  '...'    literal (no escapes and no globbing within quotes)
+  "..."    literal (no escapes and no globbing within quotes)
+  $'...'   string including all ANSI C string escapes (see NOTE); no globbing within quotes
+  $"..."   literal (no escapes and no globbing within quotes) [same as "..."]
+  $( ... ) subshell expansion [subshell commandline is _not_ expanded]
+  $("...") subshell expansion (quotes removed) [subshell commandline is _not_ expanded]
+
+NOTE: ANSI C string escapes are  (\a, \b, \e, \f, \n, \r, \t, \v, \\, \', \n{1,3}, \xh{1,2}, \cx; all other escaped characters: \<x> =>\<x>).
+
+=for TODO
+	Explain that $("...") with quote removal was added to allow redirection and continuation characters within the subshell
 
 =head2 GLOB META CHARACTERS
 
@@ -2026,7 +2145,7 @@ Note that bash compatible character expansion and globbing is available, includi
   ?       Match any single character
   ~       Current user home directory
   ~USER   User NAME home directory
-  ~TEXT   Environment variable named ~TEXT ( $ENV{~TEXT} ) [overrides ~USER expansion]
+  ~TEXT   Environment variable named ~TEXT (aka $ENV{~TEXT}) [overrides ~USER expansion]
 
 
 The metanotation C<a{b,c,d}e> is a shorthand for C<abe ace ade>.  Left to
@@ -2043,33 +2162,33 @@ at a low level to preserve this order.
 
 To install this module, run the following commands:
 
-	perl Build.PL
-	./Build
-	./Build test
-	./Build install
+    perl Build.PL
+    ./Build
+    ./Build test
+    ./Build install
 
 Or, if you're on a platform (like DOS or Windows) that doesn't require the "./" notation, you can do this:
 
-	perl Build.PL
-	Build
-	Build test
-	Build install
+    perl Build.PL
+    Build
+    Build test
+    Build install
 
-Alternatively, the standard make idiom is also available (though deprecated):
+Alternatively, the standard make idiom is also available (though it is deprecated):
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+    perl Makefile.PL
+    make
+    make test
+    make install
 
 (On Windows platforms you should use B<C<nmake>> instead.)
 
-The Makefile.PL script is just a pass-through, and Module::Build is still ultimately required for installation.
+Note that the Makefile.PL script is just a pass-through, and Module::Build is still ultimately required for installation.
 Makefile.PL will offer to download and install Module::Build if it is missing from your current installation.
 
 PPM installation bundles should also be available in the standard PPM repositories (i.e. ActiveState, trouchelle.com [http://trouchelle.com/ppm/package.xml]).
 
-Note: On ActivePerl installations, "C<./Build install>" will do a full installation using B<C<ppm>> (see L<ppm>).
+Note: On ActivePerl installations, "C<./Build install>" will do a full installation using B<C<ppm>> (see ppm).
 During the installation, a PPM package is constructed locally and then subsequently used for the final module install.
 This allows for uninstalls (using "C<ppm uninstall >I<C<MODULE>>" and also keeps local HTML documentation current.
 
@@ -2144,7 +2263,7 @@ Some initial attempts were made using C<Win32::API> and C<Inline::C>. For exampl
     :endofperl
 
 Unfortunately, C<Win32::API> and C<Inline::C> were shown to be too fragile at the time (in 2007).
-C<Win32::API> caused occasional (but reproducible) GPFs, and C<Inline::C> is very brittle on Win32 systems (not compensating for paths with embedded strings).
+C<Win32::API> caused occasional (but reproducible) GPFs, and C<Inline::C> was very brittle on Win32 systems (not compensating for paths with embedded strings).
 [ See L<http://www.perlmonks.org/?node_id=625182> for a more full explanation of the problem and initial attempts at a solution. ]
 
 So, an initial XS solution was implemented. And from that point, the lure of C<bash>-like command line parsing led inexorably to the full implementation. The parsing logic is unfortunately still complex, but seems to be holding up under testing.
@@ -2249,15 +2368,24 @@ Please report any bugs or feature requests to C<bug-Win32-CommandLine@rt.cpan.or
 
 =head2 Operational Notes
 
-IMPORTANT NOTE: Special shell characters (shell redirection [ '<', '>' ] and continuation '&') must be B<DOUBLE-quoted> to escape shell interpretation (eg, C<< "...>..." >>). The CMD shell does initial parsing and redirection/continuation (stripping away everything after I/O redirection and continuation characters) before B<any> process can get a look at the command line. So, the special shell characters can only be hidden from shell interpretation by DOUBLE-quoting them.
+IMPORTANT NOTE: Special shell characters (shell redirection [ '|', '<', '>' ] and continuation '&') must be B<DOUBLE-quoted> to escape shell interpretation (eg, C<< "foo | bar" >>). The shell does initial parsing and redirection/continuation (stripping away everything after I/O redirection and continuation characters) before B<any> process can get a look at the command line. So, the special shell characters can only be hidden from shell interpretation by quoting them with double-quote characters.
 
-C<< %<x> >> is also replaced by the corresponding %ENV variable by the CMD shell before handing the command line off to the OS. So, C<%%> must be used to place single %'s in the command line, eg: C<< perl -e "use Win32::CommandLine; %%x = Win32::CommandLine::_home_paths(); for (sort keys %%x) { print qq{$_ => $x{$_}\n}; }" >>.
+=for CORRECTION
+	special characters need to be DOUBLE-QUOTED or escaped (usually the escape character is ^)...
 
-Brackets ('{' and '}') and braces ('[' and ']') must be quoted to be matched literally. This may be a gotcha for some users, although if the filename has internal spaces, the standard Win32 shell (cmd.exe) will automatically surround the entire path with spaces (which corrects the issue).
+C<< %<X> >> is also replaced by the corresponding %ENV variable by the shell before handing the command line off to the OS. So, C<%%> must be used to place single %'s in the command line (eg, C<< perl -e "use Win32::CommandLine; %%x = Win32::CommandLine::_home_paths(); for (sort keys %%x) { print qq{$_ => $x{$_}\n}; }" >>).
 
-Some programs may expect their arguments to maintain their surrounding quotes, but argv() parsing only quotes arguments which require it for shell parsing (i.e., those containing spaces, special characters, etc).
+=for CORRECTION
+	for TCC: %X and %X% are replaced prior to expansion
+	for CMD: %X% is replaced but %X is left alone ( and lack of whitespace is not a barrier to interpretation ... '%o = (t=>1); @k = keys %o;' => 'o;'
+	for TCC: %NOT_AN_ENV_VAR% => <null>
+	for CMD: %NOT_AN_ENV_VAR% => %NOT_AN_ENV_VAR%
 
-Be careful with backslashed quotes within quoted strings. Note that "...\" is an B<unbalanced> string containing a double quote. Place the backslash outside of the quotation ("...\"") or use a double backslash (C<"...\\">) to include it in the parsed token. However, backslashes ONLY need to be doubled when placed prior to a quotation mark (C<"...\..."> works as expected).
+Brackets ('{' and '}') and braces ('[' and ']') must be quoted (single or double quotes) to be matched literally. This may be a gotcha for some users, although if the filename has internal spaces, tab expansion of filenames for the standard Win32 shell (cmd.exe) or 4NT/TCC/TCMD will automatically surround the entire path with spaces (which corrects the issue).
+
+Some programs may expect their arguments to maintain their surrounding quotes, but argv() parsing only quotes arguments which require it to maintain equivalence for shell parsing (i.e., those containing spaces, special characters, etc). And, since single quotes have no special meaning to the shell, all arguments which require quoting for correct shell interpretation will be quoted with double-quote characters, even if they were originally quoted with single-quotes. Neither of these issues should be a problem for programs using Win32::CommandLine, but may be an issue for 'legacy' applications which have their command line expanded with B<C<xx.bat>>.
+
+Be careful with backslashed quotes within quoted strings. Note that "foo\" is an B<unbalanced> string containing a double quote. Place the backslash outside of the quotation ("foo"\) or use a double backslash within ("foo\\") to include the backslash it in the parsed token. However, backslashes ONLY need to be doubled when placed prior to a quotation mark ("foo\bar" will work as expected).
 
 =for further_expansion
 	GOTCHA: Note this behavior (ending \" => ", which is probably not what is desired or expected in this case (? what about other cases, should this be "fixed" or would it break something else?)
@@ -2265,11 +2393,11 @@ Be careful with backslashed quotes within quoted strings. Note that "...\" is an
 	>t\prelim\echo.exe "\\sethra\C$\"win*
 	[0]\\sethra\C$"win*
 
-4NT/TCC/TCMD NOTE: The shell interprets and B<removes> backquote characters before executing the command. You must quote backquote characters with B<**double-quotes**> to pass them into the command line (eg, {perl -e "print `dir`"} NOT {perl -e 'print `dir`'} ... the single quotes do not protect the backquotes which are removed leaving just {dir}).
-
-=for possible_future_codefix
+=for FIXED
+	4NT/TCC/TCMD NOTE: The shell interprets and B<removes> backquote characters before executing the command. You must quote backquote characters with B<**double-quotes**> to pass them into the command line (eg, {perl -e "print `dir`"} NOT {perl -e 'print `dir`'} ... the single quotes do not protect the backquotes which are removed leaving just {dir}).
 		??? fix this by using $ENV{CMDLINE} which is set by TCC? => attempts to workaround this using $ENV{CMDLINE} fail because TCC doesn't have control between processes and can't set the new CMDLINE value if one process directly creates another (and I'm not sure how to detect that TCC started the process)
-		-- can try PPIDs if Win32::API is present... => DONE [2009-02-18] [seems to be working now... if Win32::API is available, parentEXE is checked and $ENV{CMDLINE} is used if the parent process matches 4nt/tcc/tcmd]
+		-- can try PPIDs if Win32::API is present...
+			=> DONE [2009-02-18] [seems to be working now... if Win32::API is available, parentEXE is checked and $ENV{CMDLINE} is used if the parent process matches 4nt/tcc/tcmd]
 
 =head2 Bugs
 
@@ -2281,79 +2409,118 @@ You can find documentation for this module with the perldoc command.
 
     perldoc Win32::CommandLine
 
-You can also look for information at:
+You can also look for further information at:
 
     * AnnoCPAN: Annotated CPAN documentation
-
-      http://annocpan.org/dist/Win32-CommandLine
-
+      E<space>
+    . http://annocpan.org/dist/Win32-CommandLine
+      E<space>
     * CPAN Ratings
-
+      E<space>
       http://cpanratings.perl.org/dist/Win32-CommandLine
-
+      E<space>
     * RT: CPAN's request tracker (aka buglist)
-
+      E<space>
       http://rt.cpan.org/Public/Dist/Display.html?Name=Win32-CommandLine
-
+      E<space>
     * Search CPAN
-
+      E<space>
       http://kobesearch.cpan.org/dist/Win32-CommandLine
       _or_
       http://search.cpan.org/dist/Win32-CommandLine
-
+      E<space>
     * CPANTS: CPAN Testing Service
-
+      E<space>
       [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
-       [used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
-
+      [ used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
+      E<space>
     * CPANTESTERS: Test results
-
+      E<space>
       http://www.cpantesters.org/show/Win32-CommandLine.html
 
 =for possible_future
 	* CPANFORUM: Forum discussing Win32::CommandLine
 	  http://www.cpanforum.com/dist/Win32-CommandLine
 
-=head1 ACKNOWLEDGEMENTS
+=head1 TODO
 
-=for example
-	#Test::Builder by Michael Schwern allowed me to focus on the specifics related to testing system commands by making it easy to produce proper test output.
+Expand and polish the documentation. Add argument/option explanations and examples for interface functions.
+
+=head1 TESTING
+
+=for REFERENCE [good documentation/TESTING heading :: URLref: http://search.cpan.org/dist/Net-Amazon-S3/lib/Net/Amazon/S3.pm ]
+
+=for REFERENCE [info re end-user/install vs automated vs release/author testing :: URLref: http://search.cpan.org/~adamk/Test-XT-0.02/lib/Test/XT.pm ]
+
+For additional testing, set the following environment variables to a true value ("true" in the perl sense, meaning non-NULL, non-ZERO value):
+
+=over
+
+=item TEST_AUTHOR
+
+Perform distribution correctness and quality tests, which are essential prior to a public release.
+
+=item TEST_FRAGILE
+
+Perform tests which have a specific (i.e., fragile) execution context (eg, network tests to named hosts).
+These are tests that must be coddled with specific execution contexts or set up on specific machines to
+complete correctly.
+
+=item TEST_SIGNATURE
+
+Verify signature is present and correct for the distribution.
+
+=item TEST_ALL
+
+Perform ALL (non-FRAGILE) additional/optional tests. Given the likelyhood of test failures without special handling,
+tests marked as 'FRAGILE' are still NOT performed unless TEST_FRAGILE is also true. Additionally, note that
+the 'build testall' command can be used as an equivalent to setting TEST_ALL to true temporarily, for the duration
+of the build, followed by a 'build test'.
+
+=back
+
+=for TODO
+	=head1 SEE ALSO
 
 =for readme continue
+
+=head1 LICENSE AND COPYRIGHT
+
+  Copyright (c) 2007-2009, Roy Ivy III <rivy[at]cpan[dot]org>. All rights reserved.
+
+This module is free software; you can redistribute it and/or modify it under the
+Perl Artistic License v2.0 (see L<http://opensource.org/licenses/artistic-license-2.0.php>).
+
+=head1 DISCLAIMER OF WARRANTY
+
+  THIS PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS"
+  AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT
+  ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED
+  BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF
+  THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  [REFER TO THE FULL LICENSE FOR EXPLICIT DEFINITIONS OF ALL TERMS.]
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to BrowserUK and syphilis (aka SISYPHUS on CPAN) for some helpful ideas (including an initial XS starting
+point for the module) during a discussion on PerlMonks (see L<http://www.perlmonks.org/?node_id=625182>).
+
+=for TODO
+	POST in REPLY to http://www.perlmonks.org/?parent=625182;node_id=3333
+	I just wanted to drop you a note to let you know that I used your post here as a starting point and ultimately went in for the full monty. After a lot of research, investigation, and coding, I've just released Win32::CommandLine [1] on CPAN last week.
+	It does a little more than just grab the command line now. :)
+	Thanks for the help and encouragement.
+	- Roy
+	[1] http://search.cpan.org/~rivy/Win32-CommandLine
+	POST in reply to http://www.perlmonks.org/?parent=625151;node_id=3333
+	I wanted to thank both BrowserUK and syphilis
 
 =head1 AUTHOR
 
 Roy Ivy III <rivy[at]cpan[dot]org>
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright (c) 2007-2009, Roy Ivy III <rivy[at]cpan[dot]org>. All rights reserved.
-This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself. See L<perlartistic>.
-
-
-=head1 DISCLAIMER OF WARRANTY
-
-BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
-FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
-PROVIDE THE SOFTWARE ''AS IS'' WITHOUT WARRANTY OF ANY KIND, EITHER
-EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
-ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
-YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
-NECESSARY SERVICING, REPAIR, OR CORRECTION.
-
-IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
-REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
-LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
-OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
-THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
-RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
-FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
-SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGES.
 
 =for readme stop
 

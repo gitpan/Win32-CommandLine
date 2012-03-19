@@ -1,5 +1,5 @@
 #!perl -w   -- -*- tab-width: 4; mode: perl -*-
-# [no -T]: Test::Kwalitee->import() is File::Find tainted ("Insecure dependency in chdir...")
+# [no -T]: Test::Distribution is File::Find tainted (Insecure dependency in chdir...)
 
 use strict;
 use warnings;
@@ -11,37 +11,15 @@ my $fh = select STDIN; $|++; select STDOUT; $|++; select STDERR; $|++; select $f
 
 use Test::More;
 
-plan skip_all => 'TAINT mode not supported (Test::Kwalitee is File::Find tainted)' if in_taint_mode();
+plan skip_all => 'TAINT mode not supported (Test::Distribution is File::Find tainted)' if in_taint_mode();
 plan skip_all => 'Author tests [to run: set TEST_AUTHOR]' unless $ENV{TEST_AUTHOR} or $ENV{TEST_ALL};
 
-my $haveTestKwalitee = eval { require Test::Kwalitee; 1; };
+my $haveTestDistribution = eval { require Test::Distribution; 1; };
 
-plan skip_all => 'Test::Kwalitee required to test CPANTS kwalitee' if !$haveTestKwalitee;
+plan skip_all => 'Test::Distribution required to run distribution tests' if !$haveTestDistribution;
 
-#Test::Kwalitee->import( tests => [ qw( use_strict has_tests ) ] );						# import specific kwalitee tests
-#Test::Kwalitee->import( tests => [ qw( -has_test_pod -has_test_pod_coverage ) ] );		# disable specific kwalitee tests
-import Test::Kwalitee;																	# all kwalitee tests
+import Test::Distribution;
 
-{ ## TODO: change to only look in main directory for debian_cpants... ; remove warn vs change to carp vs no critic on that line only ; also, report as bug to kwalitee.pm
-## no critic ( ErrorHandling::RequireCarping )
-# clean up trash [from Kwalitee.pm]
-# Module::CPANTS::Kwalitee::Distros suck!
-#t/a_manifest..............1/1
-##   Failed test at t/a_manifest.t line 13.
-##          got: 1
-##     expected: 0
-## The following files are not named in the MANIFEST file: /home/apoc/workspace/VCS-perl-trunk/VCS-2.12.2/Debian_CPANTS.txt
-## Looks like you failed 1 test of 1.
-#t/a_manifest.............. Dubious, test returned 1 (wstat 256, 0x100)
-foreach my $file ( qw( Debian_CPANTS.txt ../Debian_CPANTS.txt ) ) {
-	if ( -e $file and -f _ ) {
-		my $status = unlink( $file );
-		if ( ! $status ) {
-			warn "unable to unlink $file";
-			}
-		}
-	}
-}
 
 #### SUBs ---------------------------------------------------------------------------------------##
 
