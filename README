@@ -2,7 +2,7 @@ NAME
     Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 VERSION
-    our $VERSION = qv(qw$Version: 0.5.6.22 $[1])
+    our $VERSION = qv(qw$Version: 0.5.6.18835 $[1])
 
 SYNOPSIS
             @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };

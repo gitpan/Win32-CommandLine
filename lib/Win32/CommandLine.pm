@@ -1,6 +1,6 @@
 #-*- tab-width: 4; mode: perl -*-
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.5.6.22 ( r270:bb72801bce59 [mercurial] ) 2012/03/22 00:03:40 rivy $
+#$Id: CommandLine.pm,v 0.5.6.18835 ( r274:a90532a3deff [mercurial] ) 2012/03/22 05:20:32 rivy $
 
 # Module Summary
 
@@ -10,7 +10,7 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-our $VERSION = qv(qw$Version: 0.5.6.22 $[1])
+our $VERSION = qv(qw$Version: 0.5.6.18835 $[1])
 
 =cut
 
@@ -36,11 +36,11 @@ use warnings;
 use 5.006;			# earliest tested perl version
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.5.6.22 $ SCS tag
+# generate VERSION from $Version: 0.5.6.18835 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
-use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.6.22 $ ))[-2]; if ($VERSION =~ /^\d+([._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[._](\d+)[._](\d+)(?:[._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers RequireConstantVersion )
+use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.6.18835 $ ))[-2]; if ($VERSION =~ /^\d+([._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[._](\d+)[._](\d+)(?:[._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers RequireConstantVersion )
 
 # Module base/ISA and Exports
 
@@ -71,7 +71,7 @@ sub argv;			# get commandline and reparse it, returning a new ARGV array
 
 # Module Implementation
 
-bootstrap Win32::CommandLine $VERSION;
+bootstrap Win32::CommandLine $VERSION->normal;
 
 sub command_line{
 	# command_line(): returns $
