@@ -1,6 +1,6 @@
 #-*- tab-width: 4; mode: perl -*-
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.5.5.614 ( r260:680159cdb230 [mercurial] ) 2012/03/19 04:01:54 rivy $
+#$Id: CommandLine.pm,v 0.5.6.22 ( r270:bb72801bce59 [mercurial] ) 2012/03/22 00:03:40 rivy $
 
 # Module Summary
 
@@ -10,7 +10,7 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-our $VERSION = qv(qw$Version: 0.5.5.614 $[1])
+our $VERSION = qv(qw$Version: 0.5.6.22 $[1])
 
 =cut
 
@@ -36,11 +36,11 @@ use warnings;
 use 5.006;			# earliest tested perl version
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.5.5.614 $ SCS tag
+# generate VERSION from $Version: 0.5.6.22 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
-use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.5.614 $ ))[-2]; if ($VERSION =~ /^\d+([._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[._](\d+)[._](\d+)(?:[._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers RequireConstantVersion )
+use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.6.22 $ ))[-2]; if ($VERSION =~ /^\d+([._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[._](\d+)[._](\d+)(?:[._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers RequireConstantVersion )
 
 # Module base/ISA and Exports
 
@@ -2272,7 +2272,20 @@ So, an initial XS solution was implemented. And from that point, the lure of C<b
 
 =head1 IMPLEMENTATION and INTERNALS
 
-wrap_GetCommandLine() :: [XS] Use C and Win32 API to get the command line.
+SV * _wrap_GetCommandLine() :: [XS] Use C and Win32 API to get the command line.
+HANDLE _wrap_CreateToolhelp32Snapshot ( dwFlags, th32ProcessID )
+bool _wrap_Process32First ( hSnapshot, lppe )
+bool _wrap_Process32Next ( hSnapshot, lppe )
+bool _wrap_CloseHandle ( hObject )
+ ##// Pass useful CONSTANTS back to perl
+int _const_MAX_PATH ()
+HANDLE _const_INVALID_HANDLE_VALUE ()
+DWORD _const_TH32CS_SNAPPROCESS ()
+ ##// Pass useful sizes back to Perl (for testing) */
+unsigned int _info_SIZEOF_HANDLE ()
+unsigned int _info_SIZEOF_DWORD ()
+ #// Pass PROCESSENTRY32 structure info back to Perl
+SV * _info_PROCESSENTRY32 ()
 
 =for further_expansion
 	other internal function notes
@@ -2336,7 +2349,7 @@ $ENV{NULLGLOB} = 0/1 => overrides default 'nullglob' setting
 
 C<Win32::CommandLine> requires C<Carp::Assert> for internal error checking and warnings.
 
-The optional modules C<Win32>, C<Win32::API>, C<Win32::Security::SID>, and C<Win32::TieRegistry> are recommended to allow full glob tilde expansions
+The optional modules C<Win32>, C<Win32::Security::SID>, and C<Win32::TieRegistry> are recommended to allow full glob tilde expansions
 for user home directories (eg, C<~administrator> expands to C<C:\Users\Administrator>). Expansion of the single tilde (C<~>) has a backup
 implementation based on %ENV variables, and therefore will still work even without the optional modules.
 
@@ -2412,31 +2425,31 @@ You can find documentation for this module with the perldoc command.
 You can also look for further information at:
 
     * AnnoCPAN: Annotated CPAN documentation
-      E<space>
-    . http://annocpan.org/dist/Win32-CommandLine
-      E<space>
+
+	http://annocpan.org/dist/Win32-CommandLine
+
     * CPAN Ratings
-      E<space>
-      http://cpanratings.perl.org/dist/Win32-CommandLine
-      E<space>
+
+	http://cpanratings.perl.org/dist/Win32-CommandLine
+		
     * RT: CPAN's request tracker (aka buglist)
-      E<space>
-      http://rt.cpan.org/Public/Dist/Display.html?Name=Win32-CommandLine
-      E<space>
+
+	http://rt.cpan.org/Public/Dist/Display.html?Name=Win32-CommandLine
+
     * Search CPAN
-      E<space>
-      http://kobesearch.cpan.org/dist/Win32-CommandLine
-      _or_
-      http://search.cpan.org/dist/Win32-CommandLine
-      E<space>
-    * CPANTS: CPAN Testing Service
-      E<space>
-      [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
-      [ used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
-      E<space>
+
+	http://kobesearch.cpan.org/dist/Win32-CommandLine
+	_or_
+	http://search.cpan.org/dist/Win32-CommandLine
+
     * CPANTESTERS: Test results
-      E<space>
-      http://www.cpantesters.org/show/Win32-CommandLine.html
+
+	http://www.cpantesters.org/show/Win32-CommandLine.html
+
+=for possible_future_currently_defunct
+	* CPANTS: CPAN Testing Service
+		[kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
+		[ used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
 
 =for possible_future
 	* CPANFORUM: Forum discussing Win32::CommandLine

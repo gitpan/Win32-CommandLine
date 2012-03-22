@@ -2,7 +2,7 @@ NAME
     Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 VERSION
-    our $VERSION = qv(qw$Version: 0.5.5.614 $[1])
+    our $VERSION = qv(qw$Version: 0.5.6.22 $[1])
 
 SYNOPSIS
             @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
@@ -165,7 +165,7 @@ DEPENDENCIES
     `Win32::CommandLine' requires `Carp::Assert' for internal error checking
     and warnings.
 
-    The optional modules `Win32', `Win32::API', `Win32::Security::SID', and
+    The optional modules `Win32', `Win32::Security::SID', and
     `Win32::TieRegistry' are recommended to allow full glob tilde expansions
     for user home directories (eg, `~administrator' expands to
     `C:\Users\Administrator'). Expansion of the single tilde (`~') has a

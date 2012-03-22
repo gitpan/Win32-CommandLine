@@ -34,7 +34,7 @@ no_index:
 provides:
   Win32::CommandLine:
     file: lib/Win32/CommandLine.pm
-    version: v0.5.5_614
+    version: v0.5.6_22
 recommends:
   Win32: 0
   Win32::Security::SID: 0
@@ -47,4 +47,4 @@ requires:
   version: 0.74
 resources:
   license: http://www.perlfoundation.org/artistic_license_2_0
-version: v0.5.5_614
+version: v0.5.6_22
