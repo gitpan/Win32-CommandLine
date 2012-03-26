@@ -1,5 +1,5 @@
 @rem = q{--*-Perl-*--
-@::# $Id: xx.bat,v 0.5.6.18835 ( r254:a6a465ffd885 [mercurial] ) 2012/03/19 03:19:01 rivy $
+@::# $Id: xx.bat,v 0.5.8.124 ( r278:8bf5ea261dea [mercurial] ) 2012/03/25 20:42:32 rivy $
 @echo off
 :: eXpand and eXecute command line
 :: similar to linux xargs
@@ -9,7 +9,7 @@
 
 :: parent environment is kept untouched except as modified by "sourcing" of target command line text or executable output
 :: contains batch file techniques to allow "sourcing" of target command line text or executable output
-:: :"sourcing" => running commands in the parents environmental context, allowing modification of parents environment and CWD
+:: :"sourcing" => running commands in the parents environmental context, allowing modification of parents environment variables and current working directory (CWD)
 
 :: NOTE: TCC/4NT quirk => use %% for %, whereas CMD.exe % => as long as it does not introduce a known variable (eg, for CMD, %not_a_var => %not_a_var although %windir => C:\WINDOWS)
 
@@ -42,9 +42,14 @@ if NOT [%_xx_bat%]==[nul] ( goto :source_expansion )
 ::echo "perl output - no -s/-so"
 ::perl.exe -x -S %0 %*  	&:: if needed to avoid infinite recursion while using a PERL.BAT script
 perl -x -S %0 %*
-if %errorlevel% NEQ 0 (
+set _ERROR=%errorlevel%
+if NOT "%ERROR%" == "0" (
+	perl -e 0
+	if NOT "%errorlevel%" == "0" (
+		echo "ERROR: perl is required, but it is not executable; please install and/or add perl to the PATH"
+		)
 ::  propagate %errorlevel%
-	exit /B %errorlevel%
+	exit /B %_ERROR%
 	)
 endlocal
 goto :_DONE
@@ -59,11 +64,15 @@ echo @echo OFF >> %_xx_bat%
 ::echo perl output [source expansion { perl -x -S %0 %* }]
 ::perl.exe -x -S %0 %* >> %_xx_bat%  	&:: if needed to avoid infinite recursion while using a PERL.BAT script
 perl -x -S %0 %* >> %_xx_bat%
+set _ERROR=%errorlevel%
 ::echo "sourcing - BAT created"
-if %errorlevel% NEQ 0 (
-	set _ERROR=%errorlevel%
+if NOT "%_ERROR%" == "0" (
 ::	echo _ERROR=%ERROR%
 	erase %_xx_bat% 1>nul 2>nul
+	perl -e 0
+	if "%errorlevel%" == "0" (
+		echo "ERROR: perl is required, but it is not executable; please install and/or add perl to the PATH"
+		)
 	exit /B %_ERROR%
 	)
 ::echo "sourcing & cleanup..."
@@ -90,7 +99,7 @@ goto :endofperl
 @rem };
 #!perl -w  -- -*- tab-width: 4; mode: perl -*-
 #NOTE: use '#line NN' (where NN = actual_line_number + 1) to set perl line # for errors/warnings
-#line 88
+#line 103
 
 ## TODO: add normal .pl utility documentation/POD, etc [IN PROCESS]
 
@@ -126,7 +135,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> ($Version: 0.5.6.18835 $).
+This document describes C<xx> ($Version: 0.5.8.124 $).
 
 =head1 SYNOPSIS
 
@@ -207,11 +216,11 @@ use strict;
 use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.5.6.18835 $ SCS tag
+# generate VERSION from $Version: 0.5.8.124 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
-use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.6.18835 $ ))[-2]; if ($VERSION =~ /^\d+([\._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[\._](\d+)[\._](\d+)(?:[\._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.8.124 $ ))[-2]; if ($VERSION =~ /^\d+([\._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[\._](\d+)[\._](\d+)(?:[\._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 

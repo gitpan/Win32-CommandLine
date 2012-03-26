@@ -1,7 +1,7 @@
 bin/xx.bat
 Build.PL
 Build.PL.config
-Changes
+CHANGES
 eg/to.bat
 extras/digest-md5.pl
 extras/dosify.bat
@@ -39,6 +39,7 @@ t/12.argv.t.o
 t/13.xx.t
 t/90.pod-coverage.t
 t/90.pod.t
+t/97.license.t
 t/97.meta.t
 t/97.perl-minv.t
 t/98.version-defaults.t
