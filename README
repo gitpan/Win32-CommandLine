@@ -2,21 +2,21 @@ NAME
     Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 VERSION
-    our $VERSION = qw$Version: 0.5.8.124 $[1]
+    our $VERSION = qw$Version: 0.5.8.919 $[1]
 
 SYNOPSIS
-            @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
+        @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
 
-            _or_
+        _or_
 
-            use Win32::CommandLine qw( command_line );
-            my $commandline = command_line();
-            ...
+        use Win32::CommandLine qw( command_line );
+        my $commandline = command_line();
+        ...
 
 DESCRIPTION
     This module is used to reparse the Win32 command line, automating better
-    quoting and globbing of the command line. Globbing is full bash POSIX
-    compatible globbing, including subshell expansions. With the use of the
+    quoting, command substitution, and globbing of the command line.
+    Globbing is full bash POSIX compatible globbing. With the use of the
     companion script (`xx.bat') and `doskey' for macro aliasing, you can add
     fully implemented, bash compatible, string quoting/expansion and file
     globbing to *any* Win32 executable.
@@ -29,30 +29,36 @@ DESCRIPTION
         doskey type=call xx type $*
         type [a-c]*.pl
         doskey perl=call xx perl $*
-        perl -e 'print "test"'              [would otherwise FAIL]
+        perl -e 'print "test"'      [would otherwise FAIL]
 
   `4NT/TCC/TCMD'
         alias type=call xx type
         type [a-c]*.pl
         .
         alias perl=call xx perl
-        perl -e 'print "test"'              [would otherwise FAIL]
+        perl -e 'print "test"'      [would otherwise FAIL]
 
-    Note that bash compatible character expansion and globbing is available,
-    including glob meta-notations such as "`a[bc]*'" or
-    "`foo.{bat,pl,exe,o}'".
+    Note that bash-compatible argument expansion and globbing is available,
+    including command substitution and globbing. Glob meta-notations such as
+    "`a[bc]*'" or "`foo.{bat,pl,exe,o}'" are also available.
 
   Command line string/character expansion
       '...'    literal (no escapes and no globbing within quotes)
-      "..."    literal (no escapes and no globbing within quotes)
-      $'...'   string including all ANSI C string escapes (see NOTE); no globbing within quotes
+      "..."    literal (no escapes and no globbing within quotes) * Note-1
+      $'...'   string including all ANSI C string escapes (see Note-2); no globbing within quotes
       $"..."   literal (no escapes and no globbing within quotes) [same as "..."]
-      $( ... ) subshell expansion [subshell commandline is _not_ automatically expanded]
-      $("...") subshell expansion (quotes removed) [subshell commandline is _not_ automatically expanded]
+      $( ... ) command substitution
+      $("...") command substitution (quotes removed)
 
-    NOTE: ANSI C string escapes are (\a, \b, \e, \f, \n, \r, \t, \v, \\, \',
+    NOTE: Command substitution (replacing `$(...)' argument with the
+    standard output of the argument's execution) NOTE-1: DOS character
+    escape sequences (such as "\"") are parsed prior to being put into the
+    command line and so are valid and interpreted (unavoidably so). NOTE-2:
+    ANSI C string escapes are (\a, \b, \e, \f, \n, \r, \t, \v, \\, \',
     \[0-9]{1,3}, \x[0-9a-fA-f]{1,2}, \c[@A-Z[\\\]\^_`]; all other escaped
     characters are left in place without transformation (\<x> => \<x>).
+    NOTE: command substitution strings are not automatically expanded (use
+    `$(xx CMD)' for bash expansion of the subshell command line).
 
     URLref: [bash ANSI-C Quoting]
     http://www.gnu.org/software/bash/manual/html_node/ANSI_002dC-Quoting.htm

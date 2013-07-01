@@ -51,6 +51,13 @@ t/99.distribution.t
 t/99.kwalitee.t
 t/99.signature.t
 t/99.strict.t-
+t/dir-further/.hidden/.sub-hidden/a/test.txt
+t/dir-further/.hidden/.sub-hidden/test.txt
+t/dir-further/.hidden/a/test.txt
+t/dir-further/.hidden/test.txt
+t/dir-further/a/test.txt
+t/dir-further/test.txt
+t/dir-shallow/test.txt
 t/glob-file.tests/TESTFILE.'[1]'.txt
 t/glob-file.tests/TESTFILE.[1].txt
 t/glob-file.tests/TESTFILE.a.txt

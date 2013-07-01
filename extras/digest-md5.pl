@@ -1,5 +1,5 @@
 #!perl -w   -- -*- tab-width: 4; mode: perl -*-
-#$Id: digest-md5.pl,v 0.5.8.124 ( r195:9bba78c5cd5e [mercurial] ) 2009/04/29 05:27:31 rivy $
+#$Id: digest-md5.pl,v 0.5.8.919 ( r195:9bba78c5cd5e [mercurial] ) 2009/04/29 05:27:31 rivy $
 
 # Script Summary
 
@@ -9,7 +9,7 @@ digest-md5 - Find and print the executable path(s)
 
 =head1 VERSION
 
-This document describes C<digest-md5> ($Version: 0.5.8.124 $).
+This document describes C<digest-md5> ($Version: 0.5.8.919 $).
 
 =head1 SYNOPSIS
 
@@ -57,10 +57,10 @@ B<digest-md5> will calculate and print the hexadecimal MD5 digest for each FILEN
 =cut
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.5.8.124 $ SCS tag
+# generate VERSION from $Version: 0.5.8.919 $ SCS tag
 # $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
 # $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
-use version qw(); our $VERSION; { my $defaultVERSION = '0.1.0'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.8.124 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version qw(); our $VERSION; { my $defaultVERSION = '0.1.0'; my $generate_alphas = 0; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.8.919 $ ))[-2]; if ($generate_alphas) { $VERSION =~ /(\d+)\.(\d+)\.(\d+)(?:\.)?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version::qv( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
 
 use Pod::Usage;
 use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat);

@@ -14,24 +14,24 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 0bf77cd3b7935dc447f4ebe9446aa1c238fc908e Build.PL
-SHA1 62c3ddeb4414ea38e7447a1d0e5e3e3ffdda7b08 Build.PL.config
+SHA1 59e6a879c809e38e79789b372c3a293d776e69a9 Build.PL
+SHA1 1aaa3ca3e2c93c29443e0f6eb06ac251c8807379 Build.PL.config
 SHA1 ac348a5d0b77499314096be5c6d2f11dafbed351 CHANGES
 SHA1 67d59fa35d31f7d2223d23a66018ac4181242719 LICENSE
-SHA1 5bc6588b16180c1e2aa2c2bf4d75d371e2499d39 MANIFEST
+SHA1 2e908945e2e5801c9ac9658e2fa4b72381b76ead MANIFEST
 SHA1 098674dacabd6010aefac077003f6825a639918e MANIFEST.SKIP
-SHA1 ec40abd0ab52b70db806b696288050c8d3dab24b META.yml
-SHA1 e1bd41cf2eaef8497cee5d5bd3a374dae858b940 Makefile.PL
-SHA1 831f60dd66676ecc6ab43ec79fa6d875f75235b9 README
-SHA1 5cec74ce19a0152ba8d8ccb1ebb4879834429ef0 bin/xx.bat
-SHA1 55f6af961dd6c000a3b870d5dad9a1a39c2b890b eg/to.bat
-SHA1 7568a3fe4de87b9e65c3eff788d8bade1f64dab5 extras/digest-md5.pl
+SHA1 fc8b615d2f4413ce5b44d7a6d4eef2a9094d24ae META.yml
+SHA1 d1f01ce59c2810e11044a6bf846c86f29f555652 Makefile.PL
+SHA1 b5566a7e19b1a2b34f0d70e414c8c0c66e6229a0 README
+SHA1 43ece32fd33ff6bf8f57f55f3a55a9b6960ff1d6 bin/xx.bat
+SHA1 23031239e0d4e733b35cc95c1e1d8372d1f81258 eg/to.bat
+SHA1 c4d778ad59d16d72cf0d49baaa62bcac8272c9e1 extras/digest-md5.pl
 SHA1 54e1a3cb2ca678d5ce1d5c347cf91609da369fa6 extras/dosify.bat
 SHA1 56aaf3c3194f632624c62452ee436d9af82c02ac extras/new-guid.zip
 SHA1 151fa599d192a42d53917fb81b1110924599db65 extras/quote.bat
 SHA1 d0ab2bc38eacb89864baa8b5318c05f0b7189cd0 extras/so.bat
-SHA1 e872627cc7b39cb4f43de9d08f3b35cbdc99fbd7 extras/which.pl
-SHA1 557e8496e25e80026f875bd48e82d0273cf47fb3 lib/Win32/CommandLine.pm
+SHA1 ed1ec646356c9b387f3ecce0772ba976816ae002 extras/which.pl
+SHA1 0eb59616eade554f332db4ca8cadbf66a6df3f24 lib/Win32/CommandLine.pm
 SHA1 394a9c5e7ec99af8c96c8094616b35f35c19b8da lib/Win32/CommandLine.xs
 SHA1 c0402cb5c1d827329dc16d5484e232bcb9d9798b lib/Win32/typemap
 SHA1 d41a71a09a6817dc951f31b32c74b4a822958677 notes/General-NOTES.txt
@@ -49,7 +49,7 @@ SHA1 637108bdc7dad4a6bb69e38ac9ebe78a70e238ba t/11.commandline.t
 SHA1 ae0b44c05a90e886567ee2f2bc0939ac50eb5939 t/12.argv-ENVnullglob-f.t
 SHA1 71405772a34fc38fb01202f58b1a28fda049dfa9 t/12.argv-ENVnullglob-t.t
 SHA1 da4ed67e99e2ba03f5c967c848e50f0f38899912 t/12.argv-tilde.t
-SHA1 247b218c271c4d0d575b7175f88f1f7d020efcaf t/12.argv.t
+SHA1 940cc07c10e40b5a39a672032db380d91bd7ac71 t/12.argv.t
 SHA1 042167249715457b18e34f98543323e14bfaac5b t/12.argv.t.o
 SHA1 f6b74e146691498ecd4f3da1a552e4d74aabdd6f t/13.xx.t
 SHA1 04745dfc6661f3be672f086498708b6715dc45f4 t/90.pod-coverage.t
@@ -61,11 +61,18 @@ SHA1 2ae1a3afa17933bc4c2136316ab51fea8663d3ee t/98.version-defaults.t
 SHA1 7c5c29a9b812e863fee71b1bf31746fd376d2fc5 t/98.version.t
 SHA1 de2dcb73e51b0765dc2dcbdf38a5562af8af7b30 t/99.cover.t-
 SHA1 a60f918f09cb9d63ae92b09a604b01c57478357a t/99.critic-tests.t
-SHA1 2d46addae4d0d29350eea21e7603fe9445330823 t/99.critic.t
+SHA1 46a4ef174cfc1ca4a17cbb438f50e573c77d3516 t/99.critic.t
 SHA1 88a01decc4839483a2f60658e3da001f90074f0b t/99.distribution.t
 SHA1 215d1204460e1bf1b852d30fc1209ffacaea9c01 t/99.kwalitee.t
 SHA1 72e7a097c2e3aae6514a0f1b9b0f661f8a718a2a t/99.signature.t
 SHA1 c90ebd3ff868563cd1daf61b6030ff1098c5db52 t/99.strict.t-
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/.hidden/.sub-hidden/a/test.txt
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/.hidden/.sub-hidden/test.txt
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/.hidden/a/test.txt
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/.hidden/test.txt
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/a/test.txt
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/test.txt
+SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-shallow/test.txt
 SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.'[1]'.txt
 SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.[1].txt
 SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.a.txt
@@ -97,7 +104,7 @@ SHA1 1c86a98b9d9cbcf20fc0b0ffd3dd8d12c3f28f9c t/test.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.16 (MingW32)
 
-iEYEARECAAYFAk9v75sACgkQddUWrzF9mccbzgCff/OnWRYIjLrXAdkm1b2EQdIa
-IggAn3ToZuyWXR7L+PQ8jkxMiyljQYCt
-=Xc8w
+iEYEARECAAYFAlHRu3UACgkQddUWrzF9mcfrrQCglT8IVR3c7HPZGIHkmew0qR+z
+PAcAnjGeO3fEsoeZbdk1/xu9cj5QbzlQ
+=+qDb
 -----END PGP SIGNATURE-----
