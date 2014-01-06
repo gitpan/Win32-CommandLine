@@ -1,6 +1,6 @@
+## (emacs/sublime) -*- tab-width: 4; mode: perl; -*-
+# lib\Win32\CommandLine.pm, v0.7.318_12237505 ( [git:master] r318:babac1c77922; Roy Ivy III <RIVY.dev@gMail.com> )
 package Win32::CommandLine;
-#$Id: CommandLine.pm,v 0.5.8.919 ( r289:97f85f62496a [mercurial] ) 2012/03/26 04:16:24 rivy $
-#(emacs/sublime) -*- tab-width: 4; mode: perl; -*-
 
 # Module Summary
 
@@ -10,7 +10,7 @@ Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 =head1 VERSION
 
-our $VERSION = qw$Version: 0.5.8.919 $[1]
+our $VERSION = 'v0.7.318_12237505'
 
 =cut
 
@@ -55,11 +55,8 @@ use warnings;
 use 5.008008;       # earliest tested perl version (v5.8.8); v5.6.1 is no longer testable/reportable
 
 # VERSION: major.minor[.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.5.8.919 $ SCS tag
-# $defaultVERSION   :: used to make the VERSION code resilient vs missing keyword expansion
-# $generate_alphas  :: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
-use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.8.919 $ ))[-2]; if ($VERSION =~ /^\d+([._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[._](\d+)[._](\d+)(?:[._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers RequireConstantVersion )
+use version 0.77 qw(); our $VERSION = version->declare('v0.7.318_12237505');  ## no critic ( RequireConstantVersion )
 
 # Module base/ISA and Exports
 
@@ -90,7 +87,8 @@ sub argv;           # get commandline and reparse it, returning a new ARGV array
 
 # Module Implementation
 
-bootstrap Win32::CommandLine (($^V lt v5.8.9) ? $VERSION : $VERSION->normal);       ## no critic ( ProhibitPunctuationVars ProhibitMagicNumbers ProhibitMismatchedOperators )   ## ? ProhibitMismatchedOperators -- CHECK the comparison for correctness
+##bootstrap Win32::CommandLine (($^V lt v5.8.9) ? $VERSION : $VERSION->normal);       ## no critic ( ProhibitPunctuationVars ProhibitMagicNumbers ProhibitMismatchedOperators )   ## ? ProhibitMismatchedOperators -- CHECK the comparison for correctness
+bootstrap Win32::CommandLine $VERSION;
 
 sub command_line{
     # command_line(): returns $
@@ -131,7 +129,7 @@ use Carp::Assert qw();
 use File::Spec qw();
 use File::Which qw();
 
-#use    Data::Dumper::Simple;
+#use Data::Dumper::Simple;
 
 my %_G = ( # package globals
     q                   => q{'},                    # '
@@ -175,7 +173,7 @@ my %_G = ( # package globals
     ## :: avoid shell/sub-shell mismatches
     ## :: increase multishell environment robustness & avoid shell/sub-shell mismatches
     ## :: may not be necessary if we stop using TCC
-    ## :: NOTE: [2013-06-24] msys uses COMSPEC=c:\Windows\SysWOW64\cmd.exe on 64-bit systems (? why: it looks like MSYS depends on "PROCESSOR_ARCHITECTURE=x86" in subshells, not sure why...) 
+    ## :: NOTE: [2013-06-24] msys uses COMSPEC=c:\Windows\SysWOW64\cmd.exe on 64-bit systems (? why: it looks like MSYS depends on "PROCESSOR_ARCHITECTURE=x86" in subshells, not sure why...)
 
 {
 ## no critic ( ProhibitExcessComplexity ProhibitPunctuationVars RequireLocalizedPunctuationVars )
@@ -812,7 +810,7 @@ sub _argv_parse{
             # process and concat chunks until non-quoted whitespace is encountered
             # chunk types:
             #   NULL == 'null' (nothing but whitespace found)
-            #   $( .* ) <subshell command, ends with non-quoted )> == ['subshell_start', <any (balanced)>, 'subshell_end']
+            #   $( .* ) <subshell command, ends with 1st non-quoted )> == ['subshell_start', <any (balanced)>, 'subshell_end']
             #   ".*" <escapes ok> == 'double-quoted' [DOS escapes for \ and "]
             #   $".*" <escapes ok, with possible internal subshell commands> == '$double-quoted'
             #   $'.*' <ANSI C string, escapes ok> == '$single-quoted'
@@ -1100,15 +1098,15 @@ sub _get_next_chunk{
                 $s = defined($2) ? $2 : q{};
                 }
             else
-            	{# cover the case for isolated $
-	            ## no critic ( ProhibitCaptureWithoutTest )		## ToDO: revisit / reanalyze & remove
-            	$s =~ /^(\S)(.*)$/s;
+                {# cover the case for isolated $
+                ## no critic ( ProhibitCaptureWithoutTest )     ## ToDO: revisit / reanalyze & remove
+                $s =~ /^(\S)(.*)$/s;
                 # $1 = non-whitespace character
                 # $2 = rest of string [if exists]
                 #Carp::Assert::assert( defined $1 );
                 $ret_chunk .= defined($1) ? $1 : q{};
                 $s = defined($2) ? $2 : q{};
-            	}
+                }
             }
         }
 
@@ -1154,10 +1152,10 @@ sub _argv_do_glob{
     for my $k (keys %home_paths) { $home_paths{$k} =~ s/\\/\//g; }; # unixify path seperators
     my $home_path_re =  q{(?i)}.q{^~(}.join(q{|}, keys %home_paths ).q{)?(/|$)}; ## no critic (RequireInterpolationOfMetachars)
 
+    use File::Glob qw( :glob );
     my $s = q{};
     for (my $i=0; $i<=$#args; $i++)     ## no critic (ProhibitCStyleForLoops)
         {
-        use File::Glob qw( :glob );
         my @g = ();
         #print "args[$i] = $args[$i]->{token}\n";
         my $pat;
@@ -1848,9 +1846,9 @@ sub _argv_v1{   ## no critic ( Subroutines::ProhibitExcessComplexity )
     #for my $k (keys %home_paths) { #print "$k => $home_paths{$k}\n"; }
     #print "home_path_re = $home_path_re\n";
 
+    use File::Glob qw( :glob );
     for (my $i=0; $i<=$#argv2; $i++)        ## no critic (ProhibitCStyleForLoops)
         {
-        use File::Glob qw( :glob );
         my @g = ();
         #print "argv2[$i] = $argv2[$i] (globok = $argv2_globok[$i])\n";
         my $pat;
@@ -2199,7 +2197,7 @@ Note that bash-compatible argument expansion and globbing is available, includin
   $'...'   string including all ANSI C string escapes (see Note-2); no globbing within quotes
   $"..."   literal (no escapes and no globbing within quotes) [same as "..."]
   $( ... ) command substitution
-  $("...") command substitution (quotes removed)
+  $("...") command substitution (quotes removed; allows redirection & continuation within the subshell)
 
 NOTE: Command substitution (replacing C<$(...)> argument with the standard output of the argument's execution)
 NOTE-1: DOS character escape sequences (such as "\"") are parsed prior to being put into the command line and so are valid and interpreted (unavoidably so).
@@ -2246,12 +2244,7 @@ To install this module, run the following commands:
     ./Build test
     ./Build install
 
-Or, if you're on a platform (like DOS or Windows) that doesn't require the "./" notation, you can do this:
-
-    perl Build.PL
-    Build
-    Build test
-    Build install
+Or, if you're on a platform (like DOS or Windows) that doesn't require the "./" notation, you can replace C<./Build> with just C<Build>.
 
 Alternatively, the standard make idiom is also available (though it is deprecated):
 
@@ -2260,7 +2253,7 @@ Alternatively, the standard make idiom is also available (though it is deprecate
     make test
     make install
 
-(On Windows platforms you should use B<C<nmake>> or B<C<dmake>> instead.)
+(On Windows platforms, you should use B<C<nmake>> or B<C<dmake>> instead of B<C<make>>.)
 
 Note that the Makefile.PL script is just a pass-through, and Module::Build is still ultimately required for installation.
 Makefile.PL will throw an exception if Module::Build is missing from your current installation. C<cpan> will
@@ -2289,16 +2282,19 @@ This allows for uninstalls (using "C<ppm uninstall >I<C<MODULE>>" and also keeps
 =head2 command_line( )
 
 C<command_line( )>: returns $
+
 :: returns the full Win32 command line as a string.
 
 =head2 argv( [\%] )
 
 C<argv( [\%] )>: returns @
+
 :: reparse & glob-expand the original command line; returning a new, replacement argument array.
 
 =head2 parse( $ [,\%] )
 
 C<parse( $ [,\%] )>: returns @
+
 :: parse & glob-expand a string argument; returns the parsed argument string as an array.
 
 =head1 SUBROUTINES/METHODS
@@ -2319,7 +2315,7 @@ researching tools and developing methods for revision control and versioning, le
 and perl publishing practices. And, somewhere in the middle, adding some of the C<bash> shell magic to the CMD shell (and, additionally, making it
 compatible with the excellent [and free] TCC-LE shell from JPSoft [find that at L<http://jpsoft.com>]).
 
-Some initial attempts were made using C<Win32::API> and C<Inline::C>. For example (C<Win32::API> attempt [caused GPFs]):
+Some initial attempts were made using C<Win32::API> and C<Inline::C>. For example, a C<Win32::API> attempt [which caused GPFs]:
 
   @rem = '--*-Perl-*--
   @echo off
@@ -2347,10 +2343,10 @@ Some initial attempts were made using C<Win32::API> and C<Inline::C>. For exampl
   :endofperl
 
 Unfortunately, C<Win32::API> and C<Inline::C> were shown to be too fragile at the time (in 2007).
-C<Win32::API> caused occasional (but reproducible) GPFs, and C<Inline::C> was very brittle on Win32 systems (not compensating for paths with embedded strings).
+C<Win32::API> caused occasional (but reproducible) GPFs, and C<Inline::C> was shwon to be very brittle on Win32 systems (i.e, not compensating for paths with embedded strings).
 [ See L<http://www.perlmonks.org/?node_id=625182> for a more full explanation of the problem and initial attempts at a solution. ]
 
-So, an initial XS solution was implemented. And from that point, the lure of C<bash>-like command line parsing led inexorably to the full implementation. The parsing logic is unfortunately still complex, but seems to be holding up under testing.
+So, an initial XS solution was implemented. And from that point, the lure of C<bash>-like command line parsing led inexorably to the full implementation. The parsing logic is unfortunately still complex, but seems to be holding up well under testing.
 
 =for readme stop
 
@@ -2524,18 +2520,20 @@ You can also look for further information at:
 
   * Search CPAN
 
-    http://kobesearch.cpan.org/dist/Win32-CommandLine
-    _or_
     http://search.cpan.org/dist/Win32-CommandLine
+    _or_
+    https://metacpan.org/search?q=Win32-CommandLine
+    _or_
+    http://kobesearch.cpan.org/dist/Win32-CommandLine
 
   * CPANTESTERS: Test results
 
     http://www.cpantesters.org/show/Win32-CommandLine.html
 
-=for possible_future_currently_defunct
-    * CPANTS: CPAN Testing Service
-        [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
-        [ used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
+  * CPANTS: CPAN Testing Service
+
+    [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
+    [ used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
 
 =for possible_future
     * CPANFORUM: Forum discussing Win32::CommandLine

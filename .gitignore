@@ -1,0 +1,42 @@
+# NOTE: default = GLOBSTAR syntax
+# URLref: [.gitignore] http://git-scm.com/docs/gitignore @@ http://archive.is/Rk6rO @@ http://webcitation.org/6MF4Iee51
+
+# ignore META-build and GnuPG generated files
+.gpg/**
+
+# ignore build generated files
+Build
+Build.bat
+_build/**
+blib/**
+lib/Win32/CommandLine.c
+lib/Win32/CommandLine.o
+lib/Win32/CommandLine.obj
+lib/Win32/CommandLine_def.old
+Win32-CommandLine*
+vc[1-9][0-9]+.pdb
+MANIFEST
+MANIFEST.bak
+Makefile.PL
+Makefile
+README
+META.yml
+MYMETA.yml
+META.json
+MYMETA.json
+SIGNATURE
+CHANGES\.log\.tmp
+pod2htmd.tmp
+**\.pyc
+
+# ignore pulled/imported code (if any)
+inc/**
+t/lib/**
+
+# ignore experimental code
+t/prelim/**
+
+#### auto-generated file names
+# PL generated files
+bin/xx.bat
+lib/Win32/CommandLine.pm

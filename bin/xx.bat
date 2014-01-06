@@ -1,6 +1,6 @@
 @rem = q{--* Perl *--
-@::# $Id: xx.bat,v 0.5.8.919 ( r278:8bf5ea261dea [mercurial] ) 2012/03/25 20:42:32 rivy $
 @::# (emacs/sublime) -*- mode: perl; tab-width: 4; coding: dos; -*-
+@::# bin\xx.bat, v0.7.318_12237505 ( [git:master] r318:babac1c77922; Roy Ivy III <RIVY.dev@gMail.com> )
 @echo off
 :: eXpand and eXecute command line
 :: similar to linux xargs
@@ -41,14 +41,14 @@ if 01 == 1.0 ( setdos /x-14567 )
 
 if NOT [%_xx_bat%]==[nul] ( goto :source_expansion )
 ::echo "perl output - no -s/-so"
-::perl.exe -x -S %0 %*  	&:: if needed to avoid infinite recursion while using a PERL.BAT script
+::perl.exe -x -S %0 %*      &:: if needed to avoid infinite recursion while using a PERL.BAT script
 perl -x -S %0 %*
 set _ERROR=%errorlevel%
 if "%_ERROR%" == "0" ( goto :NO_EXIT_ERROR )
 perl -e "exit 0"
 if NOT "%errorlevel%" == "0" (
-	echo "ERROR: perl is required, but it is not executable; please install and/or add perl to the PATH"
-	)
+    echo "ERROR: perl is required, but it is not executable; please install Perl and/or add perl to the PATH [see http://strawberryperl.com]"
+    )
 ::  propagate %errorlevel%
 exit /B %_ERROR%
 :NO_EXIT_ERROR
@@ -63,19 +63,19 @@ goto :_DONE
 if 01 == 1.0 ( setdos /x0 )
 echo @echo OFF >> %_xx_bat%
 ::echo perl output [source expansion { perl -x -S %0 %* }]
-::perl.exe -x -S %0 %* >> %_xx_bat%  	&:: if needed to avoid infinite recursion while using a PERL.BAT script
+::perl.exe -x -S %0 %* >> %_xx_bat%     &:: if needed to avoid infinite recursion while using a PERL.BAT script
 perl -x -S %0 %* >> %_xx_bat%
 set _ERROR=%errorlevel%
 ::echo "sourcing - BAT created"
 if NOT "%_ERROR%" == "0" (
-::	echo _ERROR=%ERROR%
-	erase %_xx_bat% 1>nul 2>nul
-	perl -e 0
-	if "%errorlevel%" == "0" (
-		echo "ERROR: perl is required, but it is not executable; please install and/or add perl to the PATH"
-		)
-	exit /B %_ERROR%
-	)
+::  echo _ERROR=%ERROR%
+    erase %_xx_bat% 1>nul 2>nul
+    perl -e 0
+    if "%errorlevel%" == "0" (
+        echo "ERROR: perl is required, but it is not executable; please install and/or add perl to the PATH"
+        )
+    exit /B %_ERROR%
+    )
 ::echo "sourcing & cleanup..."
 :: propagate exit code from _xx_bat after it is sourced
 :: NOTES: :: erase RESETS %errorlevel% depending on outcome (overriding any %_xx_bat% errors
@@ -109,14 +109,14 @@ goto :endofperl
 # BAT file to work around Win32 I/O redirection bugs with execution of '.pl' files via the standard Win32 filename extension execution mechanism (see URLref: [pl2bat : ADVANTAGES] http://search.cpan.org/dist/perl/win32/bin/pl2bat.pl#ADVANTAGES , specifically regarding pipelines and redirection for further explanation)
 # see linux 'xargs' and 'source' commands for something similar
 # FIXED (for echo): note: command line args are dequoted so commands taking string arguments and expecting them quoted might not work exactly the same (eg, echo 'a s' => 'a s' vs xx echo 'a s' => "a s")
-#	NOTE: using $"<string>" => "<string>" quote preservation behavior can overcome this issue (eg, xx perl -e $"print 'test'")
-#		[??] $"<string>" under bash ignores the $ if C or POSIX locale in force, and only leaves string qq'd if translated to another locale
-#	NOTE: or use another method to preserve quotes for appropriate commands (such as "'"'<string'"'" (noisy but it works)
+#   NOTE: using $"<string>" => "<string>" quote preservation behavior can overcome this issue (eg, xx perl -e $"print 'test'")
+#       [??] $"<string>" under bash ignores the $ if C or POSIX locale in force, and only leaves string qq'd if translated to another locale
+#   NOTE: or use another method to preserve quotes for appropriate commands (such as "'"'<string'"'" (noisy but it works)
 
 #TODO: add option to see "normal", "dosify", and "unixify" options for echo/args to see what a command using Win32::CommandLine will get
-#	??	-a = -ad => expanded arguments as xx.bat would for an another executable (dosified)
-#	??	-au => unixify
-#	??	-ai => normal (non-d/u expansion) == default expansion of arguments as a perl exe using Win32::commandLine::argv()
+#   ??  -a = -ad => expanded arguments as xx.bat would for an another executable (dosified)
+#   ??  -au => unixify
+#   ??  -ai => normal (non-d/u expansion) == default expansion of arguments as a perl exe using Win32::commandLine::argv()
 ##TODO (-d and -u options)
 # -d: => dosify [default]
 # -d:all => dosify='all'
@@ -136,7 +136,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> ($Version: 0.5.8.919 $).
+This document describes C<xx> (v0.7.318_12237505).
 
 =head1 SYNOPSIS
 
@@ -146,8 +146,8 @@ xx [-s|-so] [B<<option(s)>>] B<<command>> [B<<argument(s)>>]
 
 Options:
 
-		--version       version message
-	-?, --help          brief help message
+        --version       version message
+    -?, --help          brief help message
 
 =end HIDDEN-OPTIONS
 
@@ -209,7 +209,7 @@ Here are some examples of what's possible in the standard cmd and tcc shells:
     xx $( perl -MConfig -e "print $Config{cc}" ) $(perl -MExtUtils::Embed -e ccopts) -c bar.c -o bar.o
 
 =for future-documentation
-	xx $( perl -MConfig -e "print $Config{ld}" ) $("perl -MExtUtils::Embed -e ldopts 2>nul") bar.o
+    xx $( perl -MConfig -e "print $Config{ld}" ) $("perl -MExtUtils::Embed -e ldopts 2>nul") bar.o
 
 =cut
 
@@ -217,38 +217,35 @@ use strict;
 use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
-# generate VERSION from $Version: 0.5.8.919 $ SCS tag
-# $defaultVERSION 	:: used to make the VERSION code resilient vs missing keyword expansion
-# $generate_alphas	:: 0 => generate normal versions; true/non-0 => generate alpha version strings for ODD numbered minor versions
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
-use version 0.74 qw(); our $VERSION; { my $defaultVERSION = '0_5'; my $generate_alphas = 1; $VERSION = ( $defaultVERSION, qw( $Version: 0.5.8.919 $ ))[-2]; if ($VERSION =~ /^\d+([\._]\d+)?$/) {$VERSION .= '.0'; if (!defined($1)) {$VERSION .= '.0'}}; if ($generate_alphas) { $VERSION =~ /(\d+)[\._](\d+)[\._](\d+)(?:[\._])?(.*)/; $VERSION = $1.'.'.$2.((!$4&&($2%2))?'_':'.').$3.($4?((($2%2)?'_':'.').$4):q{}); $VERSION = version->new( $VERSION ); }; } ## no critic ( ProhibitCallsToUnexportedSubs ProhibitCaptureWithoutTest ProhibitNoisyQuotes ProhibitMixedCaseVars ProhibitMagicNumbers)
+use version 0.77 qw(); our $VERSION = version->declare('v0.7.318_12237505');  ## no critic ( RequireConstantVersion )
 
 use Pod::Usage;
 
 use Carp::Assert;
 
-use FindBin; # NOTE: BEGIN is used in FindBin; this can incompatible with any other modules using FindBin; DON'T use with any module submitted to CPAN; ## URLref: [perldoc::FindBin - Known Issues] http://perldoc.perl.org/FindBin.html#KNOWN-ISSUES
+use FindBin; # NOTE: BEGIN is used in FindBin; this can incompatible with any other modules using FindBin; so, DON'T use with any *module* submitted to CPAN; ## URLref: [perldoc::FindBin - Known Issues] http://perldoc.perl.org/FindBin.html#KNOWN-ISSUES
 
 use ExtUtils::MakeMaker;
 
 #-- config
-#my %fields = ( 'quotes' => qq("'`), 'seperators' => qq(:,=) );	#"
+#my %fields = ( 'quotes' => qq("'`), 'seperators' => qq(:,=) ); #"
 
 #-- getopt
-use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ##	# no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
+use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ## # no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
 # PRE-parse for nullglob option before initial expansion of command line (to avoid double expansion of the command line and possible subshell side-effects)
 my %ARGV = ();
 GetOptions (\%ARGV, 'echo|e|s', 'so', 'args|a', 'nullglob=s', 'help|h|?|usage', 'man', 'version|ver|v');
 if ( exists $ARGV{'nullglob'} ) { $ENV{'nullglob'} = $ARGV{'nullglob'}; }
 
-my $showUsage = ( @ARGV < 1 );	# show usage only if no arguments (check _before_ a possible nullglob replacement of any/all globs by NULL)
+my $showUsage = ( @ARGV < 1 );  # show usage only if no arguments (check _before_ a possible nullglob replacement of any/all globs by NULL)
 
 use Win32::CommandLine;
 
-@ARGV = Win32::CommandLine::argv( { dosify => 'true', dosquote => 'true' } );	# if eval { require Win32::CommandLine; }; ## depends on Win32::CommandLine (and installed with it) so we want the error if its missing or unable to load
+@ARGV = Win32::CommandLine::argv( { dosify => 'true', dosquote => 'true' } );   # if eval { require Win32::CommandLine; }; ## depends on Win32::CommandLine (and installed with it) so we want the error if its missing or unable to load
 
 #-- do main getopt
-##use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ##	# no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
+##use Getopt::Long qw(:config bundling bundling_override gnu_compat no_getopt_compat no_permute pass_through); ##   # no_permute/pass_through to parse all args up to 1st unrecognized or non-arg or '--'
 %ARGV = ();
 # NOTE: the 'source' option '-s' is bundled into the 'echo' option since 'source' is exactly the same as 'echo' to the internal perl script. Sourcing is done by wrapping the BAT script by executing the output of the perl script.
 GetOptions (\%ARGV, 'echo|e|s', 'so', 'args|a', 'nullglob=s', 'help|h|?|usage', 'man', 'version|ver|v');
@@ -260,24 +257,24 @@ pod2usage({-verbose => 2}) if $ARGV{'man'};
 pod2usage(1) if $showUsage;
 
 if ( $ARGV{args} )
-	{
-	my $cl = Win32::CommandLine::command_line();
-	print ' $ENV{CMDLINE}'." = `".($ENV{CMDLINE}?$ENV{CMDLINE}:'<null>')."`\n";
-	print 'command_line()'." = `$cl`\n";
-	}
+    {
+    my $cl = Win32::CommandLine::command_line();
+    print ' $ENV{CMDLINE}'." = `".($ENV{CMDLINE}?$ENV{CMDLINE}:'<null>')."`\n";
+    print 'command_line()'." = `$cl`\n";
+    }
 
 ## unfortunately the args (which are correct at this point) are reparsed while going to the target command through CreateProcess() (PERL BUG: despite explicit documentation in PERL that system bypasses the shell and goes directly to execvp() for scalar(@ARGV) > 1 although there is no obvious work around since execvp() doesn't really exist in Win32 and must be emulated through CreateProcess())
 ## so, we must protect the ARGs from CreateProcess() reparsing destruction
 ## echo is a special case (it must get it's command line directly, skipping the ARGV reparsed arguments of CreateProcess()... so check and don't re-escape quotes) for 'echo'
 ### checking for echo is a bit complicated any command starting with echo followed by a . or whitespace is treated as an internal echo command unless a file exists which matches the entire 1st argument, then it is executed instead
 #if ((-e $ARGV[0]) || not $ARGV[0] =~ m/^\s*echo(.|\s*)/)
-#	{ ## protect internal ARGV whitespace and double quotes by escaping them and surrounding the ARGV with another set of double quotes
-#	## ???: do we need to just protect the individual whitespace and quote runs individually instead of a whole ARGV quote surround?
-#	## ???: do we need to protect other special characters (such as I/O redirection and continuation characters)?
-#	for (1..$#ARGV) {if ($ARGV[$_] =~ /\s/ || $ARGV[$_] =~ /["]/) {$ARGV[$_] =~ s/\"/\\\"/g; $ARGV[$_] = '"'.$ARGV[$_].'"'}; }
-#	}
+#   { ## protect internal ARGV whitespace and double quotes by escaping them and surrounding the ARGV with another set of double quotes
+#   ## ???: do we need to just protect the individual whitespace and quote runs individually instead of a whole ARGV quote surround?
+#   ## ???: do we need to protect other special characters (such as I/O redirection and continuation characters)?
+#   for (1..$#ARGV) {if ($ARGV[$_] =~ /\s/ || $ARGV[$_] =~ /["]/) {$ARGV[$_] =~ s/\"/\\\"/g; $ARGV[$_] = '"'.$ARGV[$_].'"'}; }
+#   }
 # [2009-02-18] the protection is now automatically done already with the 'dosify' option above ... ? remove it for echo or just note the issue? or allow command line control of it instead? command line control might be problematic => finding the command string without reparsing the command line multiple times (could cause side effects if $(<COMMAND>) is implemented => make it similar to -S (solo and only prior to 1st non-option?)
-#		== just note that echo has no command line parsing
+#       == just note that echo has no command line parsing
 
 # TODO: check echo %% "%%" => echo % % => % % [doesn't work for TCC or CMD]
 
@@ -286,16 +283,16 @@ $ENV{PATH} =~ /\A(.*)\z/mxs; $ENV{PATH} = ( defined $1 ? $1 : undef );
 
 
 if ( $ARGV{args} )
-	{
-	for (my $i = 0; $i < @ARGV; $i++) { print '$ARGV'."[$i] = `$ARGV[$i]`\n"; }
-	}
+    {
+    for (my $i = 0; $i < @ARGV; $i++) { print '$ARGV'."[$i] = `$ARGV[$i]`\n"; }
+    }
 
-#system { $ARGV[0] } @ARGV;		# doesn't see "echo" as a command (?? might be a problem for all CMD built-ins)
+#system { $ARGV[0] } @ARGV;     # doesn't see "echo" as a command (?? might be a problem for all CMD built-ins)
 if ( not $ARGV{args} )
-	{
-	## TODO: REDO this comment -- unfortunately the args (which are correct at this point) are reparsed while going to the target command through CreateProcess() (PERL BUG: despite explicit documentation in PERL that system bypasses the shell and goes directly to execvp() for scalar(@ARGV) > 1 although there is no obvious work around since execvp() doesn't really exist in Win32 and must be emulated through CreateProcess())
-	if ($ARGV{echo} ) { print join(" ",@ARGV); } else { if ($ARGV{so}) { my $x = join(" ",@ARGV); print `$x`; exit($? >> 8);} else { exit((system @ARGV) >> 8); }}
-	}
+    {
+    ## TODO: REDO this comment -- unfortunately the args (which are correct at this point) are reparsed while going to the target command through CreateProcess() (PERL BUG: despite explicit documentation in PERL that system bypasses the shell and goes directly to execvp() for scalar(@ARGV) > 1 although there is no obvious work around since execvp() doesn't really exist in Win32 and must be emulated through CreateProcess())
+    if ($ARGV{echo} ) { print join(" ",@ARGV); } else { if ($ARGV{so}) { my $x = join(" ",@ARGV); print `$x`; exit($? >> 8);} else { exit((system @ARGV) >> 8); }}
+    }
 
 __END__
 :endofperl

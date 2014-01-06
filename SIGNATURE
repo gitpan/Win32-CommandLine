@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.66.
+signed via the Module::Signature module, version 0.73.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,27 +14,30 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 59e6a879c809e38e79789b372c3a293d776e69a9 Build.PL
-SHA1 1aaa3ca3e2c93c29443e0f6eb06ac251c8807379 Build.PL.config
+SHA1 afcca544c6611259c82be10c1262793d68835130 .gitattributes
+SHA1 bf0f5ec751e09781c544878ed8e47f59fb452d14 .gitignore
+SHA1 93d8f5c73882584a7bfe74d14842e4d0f70e80ed Build.PL
+SHA1 d3d43e7a425aae64456b2bbb3c0ca6fb04352e5c Build.PL.config
 SHA1 ac348a5d0b77499314096be5c6d2f11dafbed351 CHANGES
 SHA1 67d59fa35d31f7d2223d23a66018ac4181242719 LICENSE
-SHA1 2e908945e2e5801c9ac9658e2fa4b72381b76ead MANIFEST
-SHA1 098674dacabd6010aefac077003f6825a639918e MANIFEST.SKIP
-SHA1 fc8b615d2f4413ce5b44d7a6d4eef2a9094d24ae META.yml
-SHA1 d1f01ce59c2810e11044a6bf846c86f29f555652 Makefile.PL
-SHA1 b5566a7e19b1a2b34f0d70e414c8c0c66e6229a0 README
-SHA1 43ece32fd33ff6bf8f57f55f3a55a9b6960ff1d6 bin/xx.bat
-SHA1 23031239e0d4e733b35cc95c1e1d8372d1f81258 eg/to.bat
-SHA1 c4d778ad59d16d72cf0d49baaa62bcac8272c9e1 extras/digest-md5.pl
-SHA1 54e1a3cb2ca678d5ce1d5c347cf91609da369fa6 extras/dosify.bat
+SHA1 5e42f4c13d45414eb854dcd8639f9d8b47d6b806 MANIFEST
+SHA1 e7350b9a186fa687bb2cd7ff5dd9135431583e58 MANIFEST.SKIP
+SHA1 c59173d3920e86e2ee13039285d96ee870188254 META.json
+SHA1 4e4695c171d1b4f7b95fa40f731851bc2e9e0274 META.yml
+SHA1 dd4ead53d79446b9a2b89edb19769c394513f2e5 Makefile.PL
+SHA1 a6d2eda6db0e5f3e8b6bfa0d6e570eb5faafd03a README
+SHA1 5582a4a2f3f913c5de87c510ba241f3a978d4126 bin/xx.bat
+SHA1 f9eed341ed3c980c3100d9721fc33068abd28a88 eg/to.bat
+SHA1 eba0238ddd21a7b73aafbdc3c9e08d6fa1bfc8da extras/digest-md5.pl
+SHA1 3e3230ed49ce28129c826ddd4df411c32b68ff5d extras/dosify.bat
 SHA1 56aaf3c3194f632624c62452ee436d9af82c02ac extras/new-guid.zip
-SHA1 151fa599d192a42d53917fb81b1110924599db65 extras/quote.bat
+SHA1 acf2107b09d0085a5a69e1d6200247d433cef3e6 extras/quote.bat
 SHA1 d0ab2bc38eacb89864baa8b5318c05f0b7189cd0 extras/so.bat
-SHA1 ed1ec646356c9b387f3ecce0772ba976816ae002 extras/which.pl
-SHA1 0eb59616eade554f332db4ca8cadbf66a6df3f24 lib/Win32/CommandLine.pm
+SHA1 4fd155d1d5ea64b8bc59136e79c8f72317a6fb2c extras/which.pl
+SHA1 da60712baa975859dc15922a4c13609438160508 lib/Win32/CommandLine.pm
 SHA1 394a9c5e7ec99af8c96c8094616b35f35c19b8da lib/Win32/CommandLine.xs
 SHA1 c0402cb5c1d827329dc16d5484e232bcb9d9798b lib/Win32/typemap
-SHA1 d41a71a09a6817dc951f31b32c74b4a822958677 notes/General-NOTES.txt
+SHA1 a80a6aadab79fba67c0d9654a007946fc3085ee9 notes/General-NOTES.txt
 SHA1 4c1b94dd10d2926ceb84ad0d55e70784aad99f19 notes/INSTALL-notes.txt
 SHA1 c6ff3485955d3a95d42aed88b45a874b54901d23 notes/dosify-notes.txt
 SHA1 7bfab89234660fe103de5945886bacec2b50edea notes/powershell-bug/t-echo-CL.pl
@@ -42,28 +45,28 @@ SHA1 cb85e089cba612331664afc75002423c58d61d09 notes/powershell-bug/t-echo-pl.pl
 SHA1 6fb0fc0b78cbe5358dbe3318539ccb384099928f notes/powershell-bug/t-echo.bat
 SHA1 7348253347196211515676b5c084097b8497e7a2 notes/powershell-parsing.txt
 SHA1 8f3c809ef21c35adf8509677b4fc7c1c39ed818a t/00.signature.t
-SHA1 0c840783376377f7f5dc745a834a2cd69d1d2920 t/01.load.t
+SHA1 b39f70f27a402f378777b9805ce0994e2aa5740b t/01.load.t
 SHA1 89299d0a555d9b51bacc25fbd551596574c1fa18 t/10.CPANpm.t-
 SHA1 7ba138d02a5af2c2b247d5aa3701cbb0521a029f t/10.namespace.t
 SHA1 637108bdc7dad4a6bb69e38ac9ebe78a70e238ba t/11.commandline.t
 SHA1 ae0b44c05a90e886567ee2f2bc0939ac50eb5939 t/12.argv-ENVnullglob-f.t
 SHA1 71405772a34fc38fb01202f58b1a28fda049dfa9 t/12.argv-ENVnullglob-t.t
-SHA1 da4ed67e99e2ba03f5c967c848e50f0f38899912 t/12.argv-tilde.t
-SHA1 940cc07c10e40b5a39a672032db380d91bd7ac71 t/12.argv.t
+SHA1 eee3dc9affb787f2df50616dcdb35a0502c8148f t/12.argv-tilde.t
+SHA1 6aadfa8c0659d33ddc8e1342c033a6fdabfe50c5 t/12.argv.t
 SHA1 042167249715457b18e34f98543323e14bfaac5b t/12.argv.t.o
-SHA1 f6b74e146691498ecd4f3da1a552e4d74aabdd6f t/13.xx.t
+SHA1 5f0c2b2b4c528cb974c44dab8795f1971f95e3a9 t/13.xx.t
 SHA1 04745dfc6661f3be672f086498708b6715dc45f4 t/90.pod-coverage.t
 SHA1 99a6037be5f4402f27a0418d3bdfd06589d4fa70 t/90.pod.t
-SHA1 d0f3404bc6fd93043e610c5e74aea944d7aa4dcd t/97.license.t
+SHA1 1a1ba5eebfc2cf0bb59a9e84a5fa4994d7a0dd3a t/97.license.t
 SHA1 c7493d9ecbb0c80d89886ee57721304ccbadb1f9 t/97.meta.t
 SHA1 5e3cd1cd0e6ebbaa00f875303be0d3698a69d77a t/97.perl-minv.t
-SHA1 2ae1a3afa17933bc4c2136316ab51fea8663d3ee t/98.version-defaults.t
-SHA1 7c5c29a9b812e863fee71b1bf31746fd376d2fc5 t/98.version.t
+SHA1 4e45deb4c83535d05eea8186e415b426a85afbf2 t/98.version-defaults.t-
+SHA1 f78d5ebd800c1d3acb3b768a8b5c951836be7aa4 t/98.version.t
 SHA1 de2dcb73e51b0765dc2dcbdf38a5562af8af7b30 t/99.cover.t-
 SHA1 a60f918f09cb9d63ae92b09a604b01c57478357a t/99.critic-tests.t
-SHA1 46a4ef174cfc1ca4a17cbb438f50e573c77d3516 t/99.critic.t
-SHA1 88a01decc4839483a2f60658e3da001f90074f0b t/99.distribution.t
-SHA1 215d1204460e1bf1b852d30fc1209ffacaea9c01 t/99.kwalitee.t
+SHA1 2d46addae4d0d29350eea21e7603fe9445330823 t/99.critic.t
+SHA1 55da0b3398486772a309aa6d927463f4fac9de9b t/99.distribution.t
+SHA1 6b6fa2fe2c7467124710e3ba6c6d89c7de9b425b t/99.kwalitee.t
 SHA1 72e7a097c2e3aae6514a0f1b9b0f661f8a718a2a t/99.signature.t
 SHA1 c90ebd3ff868563cd1daf61b6030ff1098c5db52 t/99.strict.t-
 SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 t/dir-further/.hidden/.sub-hidden/a/test.txt
@@ -81,30 +84,12 @@ SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{.,}.tx
 SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{a,b}.txt
 SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{a}.txt
 SHA1 8468346c949abc6691dd54622db97538f4d2681c t/glob-file.tests/TESTFILE.{b}.txt
-SHA1 0f073febe7b449eb028e5cfb2f0e2c879645cb26 t/ltrim.t
-SHA1 028b0feab40e56ff2ede1619834c70820ed37a8d t/prelim/build-cs.bat
-SHA1 d0c4bcd2d08ffdfaabb89f25bcb7c32b64288d58 t/prelim/echo-dosify.pl
-SHA1 0f4964e4a1f0e8c9d9108914c89573a02191125d t/prelim/echo-plain.bat
-SHA1 7ac4f4896273a5e5279a3d069f2f951656e31be4 t/prelim/echo.bat
-SHA1 b2a80c7ac7deed8268cf934a5a8c7433b1b8f1cb t/prelim/echo.cs
-SHA1 5657b1ba583288634fbedc74967bff82053bbb0a t/prelim/echo.exe
-SHA1 9b2067aedb050e0b4fb174c3fcd374362190e240 t/prelim/echo.pl
-SHA1 b4a2c9b5b6e494dda867e58651de1771c3f91f65 t/prelim/normal-vc.set
-SHA1 f3e11e8afb599c7b4b5b2ea3cd8765f7d880dfb3 t/prelim/normal.set
-SHA1 86d0ef09bf200348375adc62050810946c4ab268 t/prelim/sdk.set
-SHA1 51c47e38f6f12b8af84e70034c976110e9800252 t/prelim/show-args.pl
-SHA1 af194185916b419512c011394ef2d1bfd818a281 t/prelim/t-4dos.bat
-SHA1 caf14a46fa18bde8398e16f8e869596459548539 t/prelim/t-ToolHelpXS.PL
-SHA1 0ce8209ed4e095735c5d2d53a3fdd92a26aa8923 t/prelim/t-check-kwal.pl
-SHA1 343ab1edf3db0d403f4805819e4c85cad845220b t/prelim/t-commandline.pl
-SHA1 e283963e75de5dad957df82b9f03ecdb8cad0941 t/prelim/t-percents.pl
-SHA1 70a76750522c581ee6241c2516aa18dbb4e4dee6 t/prelim/t-replace.pl
-SHA1 e28617c4bf7bc628421519e23bac19538a666f04 t/prelim/versions.t
-SHA1 1c86a98b9d9cbcf20fc0b0ffd3dd8d12c3f28f9c t/test.t
+SHA1 59ce2bb6624e39ccfdd00331a0b764b7c873d5bd t/ltrim.t
+SHA1 fe1b8801464a021aef8e6b8e04a14affeb86717e t/test.t
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (MingW32)
+Version: GnuPG v2.0.22 (MingW32)
 
-iEYEARECAAYFAlHRu3UACgkQddUWrzF9mcfrrQCglT8IVR3c7HPZGIHkmew0qR+z
-PAcAnjGeO3fEsoeZbdk1/xu9cj5QbzlQ
-=+qDb
+iEYEARECAAYFAlLKVpIACgkQddUWrzF9mcf5egCeLzoKmy+N/C+1Bgs9y/vMOt0J
+tYsAoM4CPaLN+15ii9ugPKZ3sWs/0Rvf
+=Hid2
 -----END PGP SIGNATURE-----

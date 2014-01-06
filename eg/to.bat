@@ -1,4 +1,4 @@
-::# $Id: to.bat,v 0.5.8.919 ( r279:2af073ec1f39 [mercurial] ) 2012/03/25 20:43:47 rivy $
+::# $Id$
 :: to.bat [PATH]
 :: cd with command line expansion
 ::
