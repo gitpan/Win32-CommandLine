@@ -70,8 +70,8 @@
    "release_status" : "testing",
    "resources" : {
       "license" : [
-         "http://www.perlfoundation.org/artistic_license_2_0"
+         "http://opensource.org/licenses/artistic-license-2.0.php"
       ]
    },
-   "version" : "v0.7.318_12237505"
+   "version" : "v0.9_329"
 }

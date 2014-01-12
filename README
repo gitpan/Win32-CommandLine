@@ -2,102 +2,111 @@ NAME
     Win32::CommandLine - Retrieve and reparse the Win32 command line
 
 VERSION
-    our $VERSION = 'v0.7.318_12237505'
+         $Win32::CommandLine::VERSION = version->declare( 'v0.9_329' );
 
 SYNOPSIS
-        @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
+         @ARGV = Win32::CommandLine::argv() if eval { require Win32::CommandLine; };
 
-        _or_
+            _or_
 
-        use Win32::CommandLine qw( command_line );
-        my $commandline = command_line();
-        ...
+         use Win32::CommandLine qw( command_line );
+         my $commandline = command_line();
+         ...
 
 DESCRIPTION
     This module is used to reparse the Win32 command line, automating better
     quoting, command substitution, and globbing of the command line.
     Globbing is full bash POSIX compatible globbing. With the use of the
-    companion script ("xx.bat") and "doskey" for macro aliasing, you can add
-    fully implemented, bash compatible, string quoting/expansion and file
-    globbing to *any* Win32 executable.
+    companion script ("xx.bat"), and "doskey" for macro aliasing, you can
+    add fully implemented, bash compatible, string quoting/expansion and
+    file globbing to *any* Win32 executable.
 
     This module is compatible with both "cmd.exe" and "4nt/tcc/tcmd" shells,
     and can be used to add better parsing and bash glob expansion to *any*
     external command (by using the included "xx.bat" batch script).
 
   "CMD.EXE"
-        doskey type=call xx type $*
-        type [a-c]*.pl
-        doskey perl=call xx perl $*
-        perl -e 'print "test"'      [would otherwise FAIL]
+         doskey type=call xx type $*
+         type [a-c]*.pl
+         doskey perl=call xx perl $*
+         perl -e 'print "test"'      [would otherwise FAIL]
 
   "4NT/TCC/TCMD"
-        alias type=call xx type
-        type [a-c]*.pl
-        .
-        alias perl=call xx perl
-        perl -e 'print "test"'      [would otherwise FAIL]
+         alias type=call xx type
+         type [a-c]*.pl
+         alias perl=call xx perl
+         perl -e 'print "test"'      [would otherwise FAIL]
 
-    Note that bash-compatible argument expansion and globbing is available,
-    including command substitution and globbing. Glob meta-notations such as
-    ""a[bc]*"" or ""foo.{bat,pl,exe,o}"" are also available.
+    Note that bash-compatible globbing and argument expansion are supplied,
+    including command substitution. Glob patterns may also contain
+    meta-notations, such as '"a[bc]*"' or '"foo.{bat,pl,exe,o}"'.
 
   Command line string/character expansion
-      '...'    literal (no escapes and no globbing within quotes)
-      "..."    literal (no escapes and no globbing within quotes) * Note-1
-      $'...'   string including all ANSI C string escapes (see Note-2); no globbing within quotes
-      $"..."   literal (no escapes and no globbing within quotes) [same as "..."]
-      $( ... ) command substitution
-      $("...") command substitution (quotes removed; allows redirection & continuation within the subshell)
+         '...'    literal (no escapes and no globbing within quotes)
+         "..."    literal (no escapes and no globbing within quotes) (see *NOTE-1)
+         $'...'   string including all ANSI C string escapes (see *NOTE-2); no globbing within quotes
+         $"..."   literal (no escapes and no globbing within quotes) [same as "..."]
+         $( ... ) command substitution (see *NOTE-3)
+         $("...") command substitution (quotes removed; see *NOTE-4)
 
-    NOTE: Command substitution (replacing "$(...)" argument with the
-    standard output of the argument's execution) NOTE-1: DOS character
-    escape sequences (such as "\"") are parsed prior to being put into the
-    command line and so are valid and interpreted (unavoidably so). NOTE-2:
-    ANSI C string escapes are (\a, \b, \e, \f, \n, \r, \t, \v, \\, \',
-    \[0-9]{1,3}, \x[0-9a-fA-f]{1,2}, \c[@A-Z[\\\]\^_`]; all other escaped
-    characters are left in place without transformation (\<x> => \<x>).
-    NOTE: command substitution strings are not automatically expanded (use
-    "$(xx CMD)" for bash expansion of the subshell command line).
+    NOTE-1: DOS character escape sequences (such as "\"") are parsed prior
+    to being put into the command line and, so, are valid and still
+    (unavoidably) interpreted within double-quotes.
+
+    NOTE-2: ANSI C string escapes are "\a, \b, \e, \f, \n, \r, \t, \v, \\,
+    \', \[0-9]{1,3}, \x[0-9a-fA-f]{1,2}, \c[@A-Z[\\\]\^_`]"; all other
+    escaped characters are left in place without transformation ("\<x> =>
+    \<x>").
+
+    NOTE-3: Command substitution replaces the "$(...)" argument with the
+    standard output of that argument's execution. Command substitution
+    strings are not, themselves, automatically expanded; use "$(xx.bat
+    ""*COMMAND*)") to trigger expansion of the subshell command line.
+
+    NOTE-4: "$("...")" is present to enable delayed DOS/Windows
+    interpretation of redirection & continuation characters. This allows
+    redirection & continuation characters to be used within the subshell
+    command string.
 
     URLref: [bash ANSI-C Quoting]
     <http://www.gnu.org/software/bash/manual/html_node/ANSI_002dC-Quoting.ht
     ml> @@ <http://www.webcitation.org/66M8skmP8>
 
   GLOB META CHARACTERS
-      \           Quote the next metacharacter
-      []          Character class
-      {}          Multiple pattern
-      *           Match any string of characters
-      ?           Match any single character
-      ~           Current user home directory
-      ~USERNAME   Home directory of USERNAME
-      ~TEXT       Environment variable named ~TEXT (aka $ENV{~TEXT}) [overrides ~USERNAME expansion]
+         \           Quote the next metacharacter
+         []          Character class
+         {}          Multiple pattern
+         *           Match any string of characters
+         ?           Match any single character
+         ~           Current user home directory
+         ~USERNAME   Home directory of USERNAME
+         ~TEXT       Environment variable named ~TEXT (aka $ENV{~TEXT}) [overrides ~USERNAME expansion]
 
-    The multiple pattern metanotation "a{b,c,d}e" is a shorthand for "abe
-    ace ade". Left to right order is preserved, with results of matches
+    The multiple pattern metanotation '"a{b,c,d}e"' is a shorthand for '"abe
+    ace ade"'. Left to right order is preserved, with results of matches
     being sorted separately at a low level to preserve this order.
 
 INSTALLATION
     To install this module, run the following commands:
 
-        perl Build.PL
-        ./Build
-        ./Build test
-        ./Build install
+         perl Build.PL
+         ./Build
+         ./Build test
+         ./Build install
 
     Or, if you're on a platform (like DOS or Windows) that doesn't require
-    the "./" notation, you can replace "./Build" with just "Build".
+    the leading '"./"' notation, you can replace '"./Build"' with just
+    '"Build"'.
 
-    Alternatively, the standard make idiom is also available (though it is
+    Alternatively, the standard make idiom is also available (although it is
     deprecated):
 
-        perl Makefile.PL
-        make
-        make test
-        make install
+         perl Makefile.PL
+         make
+         make test
+         make install
 
-    (On Windows platforms, you should use "nmake" or "dmake" instead of
+    (On Windows platforms, you should use "nmake"or "dmake", instead of
     "make".)
 
     Note that the Makefile.PL script is just a pass-through, and
@@ -109,31 +118,58 @@ INSTALLATION
 
     PPM installation bundles should also be available in the standard PPM
     repositories (i.e. ActiveState, trouchelle.com
-    [http://trouchelle.com/ppm/package.xml]).
+    [<http://trouchelle.com/ppm/package.xml>]).
 
-    Note: On ActivePerl installations, ""./Build install"" will do a full
+    Note: On ActivePerl installations, '"./Build install"' will do a full
     installation using "ppm" (see ppm). During the installation, a PPM
     package is constructed locally and then subsequently used for the final
-    module install. This allows for uninstalls (using ""ppm uninstall
-    "*"MODULE"*" and also keeps local HTML documentation current.
+    module install. This allows for uninstalls (using '"ppm uninstall
+    ""*MODULE*"' and also keeps local HTML documentation current.
 
 INTERFACE
-  command_line( )
-    "command_line( )": returns $
+  "command_line( ): $"
+    *   [out] : the original command line for the process, as a string
 
-    :: returns the full Win32 command line as a string.
+     my $commandline = command_line();
 
-  argv( [\%] )
-    "argv( [\%] )": returns @
+    Use the Win32 API to recapture the original command line for the current
+    process.
 
-    :: reparse & glob-expand the original command line; returning a new,
-    replacement argument array.
+  "argv( [\%options] ): @"
+    *   [in] : (optional) reference to hash containing function options
 
-  parse( $ [,\%] )
-    "parse( $ [,\%] )": returns @
+    *   [out] : returns a new argument array (which can replace @ARGV)
 
-    :: parse & glob-expand a string argument; returns the parsed argument
-    string as an array.
+     @ARGV = argv();
+
+    Reparse & glob-expand the original command line, returning a new
+    argument array (which is a drop-in replacement for @ARGV).
+
+  "parse( $ [,\%options ] ): @"
+    *   [in] : string argument to parse/glob-expand
+
+    *   [in] : (optional) reference to hash containing function options
+
+    *   [out] : returns an argument array
+
+     my @argv_new = parse( command_line() );
+
+    Parse & glob-expand a string argument; returns the results of
+    parsed/expanded argument as an array.
+
+  Function Options ( "\%options" )
+        my %options = (
+            remove_exe_prefix => 1,     # = 0/<true> [default = true]       # if true, remove all initial args up to and including the exe name from the @args array
+            dosquote => 0,              # = 0/<true>/'all' [default = 0]    # if true, convert all non-globbed ARGS to DOS/Win32 CLI compatible tokens (escaping internal quotes and quoting whitespace and special characters)
+            dosify => 0,                # = 0/<true>/'all' [default = 0]    # if true, convert all _globbed_ ARGS to DOS/Win32 CLI compatible tokens (escaping internal quotes and quoting whitespace and special characters); 'all' => do so for for _all_ ARGS which are determined to be files
+            unixify => 0,               # = 0/<true>/'all' [default = 0]    # if true, convert all _globbed_ ARGS to UNIX path style; 'all' => do so for for _all_ ARGS which are determined to be files
+            nullglob => defined($ENV{nullglob}) ? $ENV{nullglob} : 0,       # = 0/<true> [default = 0]  # if true, patterns which match no files are expanded to a null string (no token), rather than the pattern itself  ## $ENV{nullglob} (if it exists) overrides the default
+            glob => 1,                  # = 0/<true> [default = true]       # when true, globbing is performed
+            ## TODO: rework this ... need carp/croak on unbalanced quotes/subshells (? carp_ub_quotes, carp_ub_shells, carp = 0/1/warn/carp/die/croak)
+            croak_unbalanced => 1,      # = 0/true/'quotes'/'subshells' [default = true] # if true, croak for unbalanced command line quotes or subshell blocks (takes precedence over carp_unbalanced)
+            carp_unbalanced => 1,       # = 0/true/'quotes'/'subshells' [default = true] # if true, carp for unbalanced command line quotes or subshell blocks
+            ## ToDO: add globstar option
+            );
 
 SUBROUTINES/METHODS
 RATIONALE
@@ -193,19 +229,19 @@ IMPLEMENTATION and INTERNALS
     This is a list of internal XS functions (brief descriptions will be
     added at a later date):
 
-      SV * _wrap_GetCommandLine() :: [XS] Use C and Win32 API to get the command line.
+      SV * _wrap_GetCommandLine() // [XS] Use C and Win32 API to get the command line
       HANDLE _wrap_CreateToolhelp32Snapshot ( dwFlags, th32ProcessID )
       bool _wrap_Process32First ( hSnapshot, lppe )
       bool _wrap_Process32Next ( hSnapshot, lppe )
       bool _wrap_CloseHandle ( hObject )
-      ##// Pass useful CONSTANTS back to perl
+      // Pass useful CONSTANTS back to perl
       int _const_MAX_PATH ()
       HANDLE _const_INVALID_HANDLE_VALUE ()
       DWORD _const_TH32CS_SNAPPROCESS ()
-      ##// Pass useful sizes back to Perl (for testing) */
+      // Pass useful sizes back to Perl (for testing) */
       unsigned int _info_SIZEOF_HANDLE ()
       unsigned int _info_SIZEOF_DWORD ()
-      #// Pass PROCESSENTRY32 structure info back to Perl
+      // Pass PROCESSENTRY32 structure info back to Perl
       SV * _info_PROCESSENTRY32 ()
 
 DIAGNOSTICS
@@ -216,7 +252,24 @@ CONFIGURATION AND ENVIRONMENT
     variables.
 
   OPTIONAL Environment Variables
-    $ENV{NULLGLOB} = 0/1 => overrides default 'nullglob' setting
+    "NULLGLOB" - override the default glob expansion behavior for empty
+    matches
+         $ENV{NULLGLOB} = 1; # undef/0 | <true>
+
+        Default glob expansion, as in bash, expands glob patterns which
+        match nothing into the glob pattern itself. Use $ENV{NULLGLOB} to
+        override this default behavior.
+
+        Analogous to the bash command '"shopt -s nullglob"', when
+        $ENV{NULLGLOB} is set to a true (non-NULL, non-zero) value, a glob
+        expansion which matches nothing will expand to the null string (aka,
+        "q{}").
+
+        Note: the default glob expansion behavior can also be modified
+        programmatically via the function option, "nullglob", when passed to
+        the argv() and parse() functions. This option, when passed to
+        "argv()" or "parse()", will override both the default behavior *and*
+        the $ENV{NULLGLOB} setting.
 
 DEPENDENCIES
     "Win32::CommandLine" requires "Carp::Assert" for internal error checking
@@ -235,13 +288,13 @@ INCOMPATIBILITIES
 BUGS AND LIMITATIONS
     Please report any bugs or feature requests to
     "bug-Win32-CommandLine@rt.cpan.org", or through the web interface at
-    http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Win32-CommandLine. The
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Win32-CommandLine>. The
     developers will be notified, and you'll automatically be notified of
     progress on your bug as any changes are made.
 
   Operational Notes
     IMPORTANT NOTE: Special shell characters (shell redirection [ '|', '<',
-    '>' ] and continuation '&') must be DOUBLE-quoted to escape shell
+    "'"'> ] and continuation '&') must be DOUBLE-quoted to escape shell
     interpretation (eg, "foo | bar"). The shell does initial parsing and
     redirection/continuation (stripping away everything after I/O
     redirection and continuation characters) before any process can get a
@@ -286,38 +339,38 @@ BUGS AND LIMITATIONS
 SUPPORT
     You can find documentation for this module with the perldoc command.
 
-        perldoc Win32::CommandLine
+         perldoc Win32::CommandLine
 
     You can also look for further information at:
 
-      * AnnoCPAN: Annotated CPAN documentation
+    *   CPAN
 
-        http://annocpan.org/dist/Win32-CommandLine
+            <https://metacpan.org/search?q=Win32-CommandLine>
 
-      * CPAN Ratings
+            <http://search.cpan.org/dist/Win32-CommandLine>
 
-        http://cpanratings.perl.org/dist/Win32-CommandLine
+            <http://kobesearch.cpan.org/dist/Win32-CommandLine>
 
-      * RT: CPAN's request tracker (aka buglist)
+    *   CPAN Ratings
 
-        http://rt.cpan.org/Public/Dist/Display.html?Name=Win32-CommandLine
+            <http://cpanratings.perl.org/dist/Win32-CommandLine>
 
-      * Search CPAN
+    *   RT: CPAN's request tracker (aka buglist)
 
-        http://search.cpan.org/dist/Win32-CommandLine
-        _or_
-        https://metacpan.org/search?q=Win32-CommandLine
-        _or_
-        http://kobesearch.cpan.org/dist/Win32-CommandLine
+            <http://rt.cpan.org/Public/Dist/Display.html?Name=Win32-CommandL
+            ine>
 
-      * CPANTESTERS: Test results
+    *   CPANTESTERS: Test results
 
-        http://www.cpantesters.org/show/Win32-CommandLine.html
+            <http://www.cpantesters.org/show/Win32-CommandLine.html>
 
-      * CPANTS: CPAN Testing Service
+    *   CPANTS: CPAN Testing Service
 
-        [kwalitee] http://cpants.perl.org/dist/kwalitee/Win32-CommandLine
-        [ used by] http://cpants.perl.org/dist/used_by/Win32-CommandLine
+            "[kwalitee]"
+            <http://cpants.perl.org/dist/kwalitee/Win32-CommandLine>
+
+            "[ used by]"
+            <http://cpants.perl.org/dist/used_by/Win32-CommandLine>
 
 TODO
     Expand and polish the documentation. Add argument/option explanations
@@ -349,22 +402,22 @@ TESTING
         the duration of the build, followed by a 'build test'.
 
 LICENSE AND COPYRIGHT
-      Copyright (c) 2007-2009, Roy Ivy III <rivy[at]cpan[dot]org>. All rights reserved.
+     Copyright (c) 2007-2013, Roy Ivy III <rivy[at]cpan[dot]org>. All rights reserved.
 
     This module is free software; you can redistribute it and/or modify it
     under the Perl Artistic License v2.0 (see
     <http://opensource.org/licenses/artistic-license-2.0.php>).
 
 DISCLAIMER OF WARRANTY
-      THIS PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS"
-      AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT
-      ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED
-      BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
-      INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF
-      THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     THIS PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS"
+     AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF
+     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT
+     ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED
+     BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+     INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF
+     THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-      [REFER TO THE FULL LICENSE FOR EXPLICIT DEFINITIONS OF ALL TERMS.]
+     [REFER TO THE FULL LICENSE FOR EXPLICIT DEFINITIONS OF ALL TERMS.]
 
 ACKNOWLEDGEMENTS
     Thanks to BrowserUK and syphilis (aka SISYPHUS on CPAN) for some helpful

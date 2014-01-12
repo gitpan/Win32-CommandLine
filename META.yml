@@ -28,7 +28,7 @@ configure_requires:
   Test::Harness: 3.0
   Text::Template: 1.44
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4203, CPAN::Meta::Converter version 2.132140'
+generated_by: 'Module::Build version 0.4203, CPAN::Meta::Converter version 2.133380'
 license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -50,5 +50,5 @@ requires:
   perl: v5.8.8
   version: 0.74
 resources:
-  license: http://www.perlfoundation.org/artistic_license_2_0
-version: v0.7.318_12237505
+  license: http://opensource.org/licenses/artistic-license-2.0.php
+version: v0.9_329

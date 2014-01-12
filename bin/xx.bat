@@ -1,6 +1,6 @@
 @rem = q{--* Perl *--
 @::# (emacs/sublime) -*- mode: perl; tab-width: 4; coding: dos; -*-
-@::# bin\xx.bat, v0.7.318_12237505 ( [git:master] r318:babac1c77922; Roy Ivy III <RIVY.dev@gMail.com> )
+@::# bin\xx.bat, v0.9_329 ( [git:blead] r329:e39a418974aa; Roy Ivy III <RIVY.dev@gMail.com> )
 @echo off
 :: eXpand and eXecute command line
 :: similar to linux xargs
@@ -136,7 +136,7 @@ xx - eXpand (reparse) and eXecute the command line
 
 =head1 VERSION
 
-This document describes C<xx> (v0.7.318_12237505).
+This document describes C<xx>, v0.9_329.
 
 =head1 SYNOPSIS
 
@@ -218,7 +218,7 @@ use warnings;
 
 # VERSION: major.minor.release[.build]]  { minor is ODD => alpha/beta/experimental; minor is EVEN => stable/release }
 # [NOTE: perl 'Extended Version' (multi-dot) format is prefered and created from any single dotted (major.minor) or non-dotted (major) versions; see 'perldoc version']
-use version 0.77 qw(); our $VERSION = version->declare('v0.7.318_12237505');  ## no critic ( RequireConstantVersion )
+use version 0.77 qw(); our $VERSION = version->declare('v0.9_329');  ## no critic ( RequireConstantVersion )
 
 use Pod::Usage;
 
